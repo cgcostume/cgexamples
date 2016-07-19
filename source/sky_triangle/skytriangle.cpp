@@ -20,8 +20,8 @@ using namespace gl32core;
 
 
 SkyTriangle::SkyTriangle()
-: m_angle(0.f)
-, m_time(std::chrono::high_resolution_clock::now())
+: m_time(std::chrono::high_resolution_clock::now())
+, m_angle(0.f)
 {
 }
 
@@ -173,7 +173,7 @@ void SkyTriangle::resize(int w, int h)
     m_height = h;
 }
 
-void SkyTriangle::render()
+void SkyTriangle::render(glm::vec2 mouseSpeed)
 {
     glViewport(0, 0, m_width, m_height);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -189,9 +189,12 @@ void SkyTriangle::render()
     const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
     const auto projection = glm::perspective(glm::radians(20.f), static_cast<float>(m_width) / m_height, 1.f, 2.f);
     
-    m_angle = 0.f; //-0.0001f * msecs(std::chrono::high_resolution_clock::now() - m_time).count();
-    //const auto transform = glm::inverse(glm::rotate(view, m_angle, glm::vec3(0.f, 1.f, 0.f)));
-    const auto transform = glm::inverse(projection * view);
+    //m_angle = 0.f;
+    m_angle = 0.0001f * msecs(std::chrono::high_resolution_clock::now() - m_time).count();
+    //m_angle = (m_angle < - glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x * 0.001f;
+    
+    const auto transform = glm::inverse(glm::rotate(view, m_angle, glm::vec3(0.f, 1.f, 0.f)));
+    //const auto transform = glm::inverse(projection * view);
 
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(transform));
@@ -212,5 +215,5 @@ void SkyTriangle::render()
 
 void SkyTriangle::execute()
 {
-    render();
+    render(glm::vec2(0.0));
 }

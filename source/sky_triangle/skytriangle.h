@@ -3,6 +3,8 @@
 
 #include <chrono>
 
+#include <glm/gtc/type_ptr.hpp>
+
 
 // For more information on how to write C++ please adhere to: 
 // http://cginternals.github.io/guidelines/cpp/index.html
@@ -19,7 +21,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render();
+    void render(glm::vec2 mouseSpeed);
     void execute();
 
 protected:
@@ -43,4 +45,5 @@ protected:
     int m_width;
     int m_height;
     float m_angle;
+
 };
