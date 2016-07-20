@@ -24,8 +24,8 @@ namespace
 
 unsigned char renderMode = 0;
 bool renderModeChanged = true;
-bool lbutton_down = false;
-double mousePosX, mousePosY;
+bool lMouseButtonDown = false;
+glm::dvec2 mousePos;
 glm::vec2 mouseSpeed;
 const glm::vec2 minMouseSpeed = glm::vec2(2.5f);
 
@@ -68,25 +68,24 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (GLFW_PRESS == action)
         {
-            lbutton_down = true;
-            glfwGetCursorPos(window, &mousePosX, &mousePosY);
+            lMouseButtonDown = true;
+            glfwGetCursorPos(window, &mousePos.x, &mousePos.y);
         }
         else if (GLFW_RELEASE == action)
-            lbutton_down = false;
+            lMouseButtonDown = false;
     }
 }
 
 void getMouseSpeed(GLFWwindow* window)
 {
     // Mouse dragging
-    if (lbutton_down) {
-        double currentMouseX, currentMouseY;
-        glfwGetCursorPos(window, &currentMouseX, &currentMouseY);
-        if (mousePosX != currentMouseX || mousePosY != currentMouseY)
+    if (lMouseButtonDown) {
+        glm::dvec2 currentMousePos;
+        glfwGetCursorPos(window, &currentMousePos.x, &currentMousePos.y);
+        if (mousePos != currentMousePos)
         {
-            mouseSpeed = glm::vec2(currentMouseX, currentMouseY) - glm::vec2(mousePosX, mousePosY);
-            mousePosX = currentMouseX;
-            mousePosY = currentMouseY;
+            mouseSpeed = currentMousePos - mousePos;
+            mousePos = currentMousePos;
         }
         else
         {
@@ -116,9 +115,9 @@ void render()
     {
         renderModeChanged = false;
         static const auto modes = std::array<std::string, 3>{
-            "(0) rendering with cubemap : ",
-            "(1) environment with screen aligned triangle: ",
-            "(2) both combined. left cubemap, right screen aligned triangle: "};
+            "(0) environment with screen aligned triangle: ",
+            "(1) rendering with cubemap: ",
+            "(2) both combined. left screen aligned triangle, right cubemap: "};
         std::cout << modes[renderMode] << std::endl;
     }
     
@@ -198,7 +197,6 @@ int main(int /*argc*/, char ** /*argv*/)
     }
 
     example1.cleanup();
-    //example2.cleanup(); // TODO: implement cleanup function
 
     glfwMakeContextCurrent(nullptr);
 
