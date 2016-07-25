@@ -130,7 +130,7 @@ void SkyTriangle::loadUniformLocations()
     glUseProgram(m_programs[0]);
     m_uniformLocations[0] = glGetUniformLocation(m_programs[0], "cubemap");
     
-    m_uniformLocations[1] = glGetUniformLocation(m_programs[0], "modelView");
+    m_uniformLocations[1] = glGetUniformLocation(m_programs[0], "inverseViewProjection");
     m_uniformLocations[2] = glGetUniformLocation(m_programs[0], "inverseProjection");
 
     glUseProgram(0);
@@ -187,14 +187,14 @@ void SkyTriangle::render(glm::vec2 mouseSpeed)
     // setup view
 
     const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-    const auto projection = glm::perspective(glm::radians(20.f), static_cast<float>(m_width) / m_height, 1.f, 2.f);
+    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
     
-    //m_angle = 0.f;
-    m_angle = 0.0001f * msecs(std::chrono::high_resolution_clock::now() - m_time).count();
-    //m_angle = (m_angle < - glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x * 0.001f;
+    m_angle = 0.f;
+    //m_angle = 0.0001f * msecs(std::chrono::high_resolution_clock::now() - m_time).count(); // animation
+    //m_angle = (m_angle < - glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x * 0.001f; // mouse dragging
     
-    const auto transform = glm::inverse(glm::rotate(view, m_angle, glm::vec3(0.f, 1.f, 0.f)));
-    //const auto transform = glm::inverse(projection * view);
+    //const auto transform = glm::inverse(glm::rotate(view, m_angle, glm::vec3(0.f, 1.f, 0.f))); somehow movement
+    const auto transform = glm::inverse(projection * view);
 
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(transform));

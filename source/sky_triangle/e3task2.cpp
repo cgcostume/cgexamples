@@ -349,9 +349,9 @@ void e3task2::render()
     auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), time * 0.08f, glm::vec3(0.f, 1.f, 0.f)) 
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
 
-    auto perspective = glm::perspectiveFov(glm::radians(40.f), float(m_width), float(m_height), 1.0f, 8.0f);
-    auto view = glm::lookAt(origin, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    auto viewProjection = perspective * view;
+    const auto projection = glm::perspective(glm::radians(80.0f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
+    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    auto viewProjection = projection * view;
 
 
     glDisable(GL_CULL_FACE);
@@ -368,7 +368,7 @@ void e3task2::render()
 
     glBindVertexArray(m_modelVAO);
     
-    //glDisable(GL_CULL_FACE);
+    //glDisable(GL_CULL_FACE); // only if model is shown
     glCullFace(GL_CW);
     glDrawArrays(GL_TRIANGLES, 0, m_modelVertexCount);
 
