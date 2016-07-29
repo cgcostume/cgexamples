@@ -15,6 +15,8 @@
 
 #include <cgutils/common.h>
 
+#include <glm/gtx/rotate_vector.hpp> // TODO: necessary?
+
 
 using namespace gl32core;
 using namespace cgutils;
@@ -173,7 +175,8 @@ void e3task2::initialize()
     glBindFragDataLocation(m_skyboxProgram, 0, "out_color");
     glBindFragDataLocation(m_modelProgram, 0, "out_color");
 
-    m_start = std::chrono::high_resolution_clock::now();
+    m_direction = glm::vec3(0.f, 0.f, -1.f);
+
 }
 
 bool e3task2::loadShaders()
@@ -329,18 +332,13 @@ void e3task2::resize(int w, int h)
     m_height = h;
 }
 
-void e3task2::render()
+void e3task2::render(float time)
 {
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     glViewport(0, 0, m_width, m_height);
 
     // clear offscreen-framebuffer color attachment (no depth attachment configured and thus omitting GL_DEPTH_BUFFER_BIT)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    using msecs = std::chrono::milliseconds;
-    const auto now = std::chrono::high_resolution_clock::now();
-    auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - m_start).count());
-    time *= 0.001f; // time is now in seconds
 
     auto modelMatrix = glm::rotate(glm::mat4(1.f), time * 0.11f, glm::vec3(0.5f, 0.0f, 1.0f));
     //modelMatrix = glm::rotate(modelMatrix, cos(time * 0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -349,8 +347,10 @@ void e3task2::render()
     auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), time * 0.08f, glm::vec3(0.f, 1.f, 0.f)) 
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
 
-    const auto projection = glm::perspective(glm::radians(80.0f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
+    m_direction = glm::rotate(m_direction, time * 0.01f, glm::vec3(0.f, 1.f, 0.f));
+
     const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    const auto projection = glm::perspective(glm::radians(80.0f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
     auto viewProjection = projection * view;
 
 
@@ -395,5 +395,5 @@ void e3task2::render()
 
 void e3task2::execute()
 {
-    render();
+    render(0.0f);
 }

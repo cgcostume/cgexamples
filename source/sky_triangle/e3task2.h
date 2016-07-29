@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
+#include <glm/detail/type_vec3.hpp>
 
 
 // For more information on how to write C++ please adhere to: 
@@ -21,7 +22,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render();
+    void render(float time);
     void execute();
 
 protected:
@@ -65,5 +66,6 @@ protected:
     int m_width;
     int m_height;
 
-    std::chrono::high_resolution_clock::time_point m_start;
+    glm::vec3 m_direction;
+
 };

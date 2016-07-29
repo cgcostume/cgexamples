@@ -22,6 +22,7 @@
 namespace
 {
 
+std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 unsigned char renderMode = 0;
 bool renderModeChanged = true;
 bool lMouseButtonDown = false;
@@ -119,23 +120,29 @@ void render()
             "(1) rendering with cubemap: ",
             "(2) both combined. left screen aligned triangle, right cubemap: "};
         std::cout << modes[renderMode] << std::endl;
+        startTimePoint = std::chrono::high_resolution_clock::now();
     }
+
+    using msecs = std::chrono::milliseconds;
+    const auto now = std::chrono::high_resolution_clock::now();
+    auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
+    time *= 0.001f; // time is now in seconds
     
     switch (renderMode)
     {
     case 0:
-        example1.render(mouseSpeed);
+        example1.render(mouseSpeed, time);
         break;
     case 1:
-        example2.render();
+        example2.render(time);
         break;
     case 2:
         gl::glScissor(0, 0, canvasWidth/2, canvasHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(mouseSpeed);
+        example1.render(mouseSpeed, time);
 
         gl::glScissor(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight);
-        example2.render();
+        example2.render(time);
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
         break;
     }
@@ -173,6 +180,7 @@ int main(int /*argc*/, char ** /*argv*/)
     std::cout << "Key Binding: " << std::endl
         << "  [F5] reload shaders" << std::endl
         << "  [v] switch draw mode" << std::endl
+        << "  [r] toggle rotation" << std::endl
         << std::endl;
 
     glfwMakeContextCurrent(window);

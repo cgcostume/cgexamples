@@ -21,7 +21,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render(glm::vec2 mouseSpeed);
+    void render(glm::vec2 mouseSpeed, float time);
     void execute();
 
 protected:
@@ -40,7 +40,6 @@ protected:
     std::array<gl::GLuint, 3> m_uniformLocations;
 
     using msecs = std::chrono::duration<float, std::chrono::milliseconds::period>;
-    std::chrono::time_point<std::chrono::high_resolution_clock> m_time;
 
     int m_width;
     int m_height;
