@@ -35,13 +35,15 @@ auto example2 = e3task2();
 
 const auto canvasWidth = 1440; // in pixel
 const auto canvasHeight = 900; // in pixel
+int frameBufferWidth, frameBufferHeight;
 
 // "The size callback ... which is called when the window is resized."
 // http://www.glfw.org/docs/latest/group__window.html#gaa40cd24840daa8c62f36cafc847c72b6
-void resizeCallback(GLFWwindow * /*window*/, int width, int height)
+void resizeCallback(GLFWwindow * window, int width, int height)
 {
-    example1.resize(width, height);
-    example2.resize(width, height);
+    glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+    example1.resize(frameBufferWidth, frameBufferHeight);
+    example2.resize(frameBufferWidth, frameBufferHeight);
 }
 
 // "The key callback ... which is called when a key is pressed, repeated or released."
@@ -137,11 +139,11 @@ void render()
         example2.render(time);
         break;
     case 2:
-        gl::glScissor(0, 0, canvasWidth/2, canvasHeight);
+        gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
         example1.render(mouseSpeed, time);
 
-        gl::glScissor(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight);
+        gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
         example2.render(time);
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
         break;
@@ -160,7 +162,7 @@ int main(int /*argc*/, char ** /*argv*/)
     glfwDefaultWindowHints();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -170,6 +172,8 @@ int main(int /*argc*/, char ** /*argv*/)
         glfwTerminate();
         return 2;
     }
+    
+    glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
     glfwSetWindowSizeCallback(window, resizeCallback);
     glfwSetKeyCallback(window, keyCallback);
@@ -187,10 +191,10 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glbinding::Binding::initialize(false);
 
-    example1.resize(canvasWidth, canvasHeight);
+    example1.resize(frameBufferWidth, frameBufferHeight);
     example1.initialize();
 
-    example2.resize(canvasWidth, canvasHeight);
+    example2.resize(frameBufferWidth, frameBufferHeight);
     example2.initialize();
 
     while (!glfwWindowShouldClose(window)) // main loop
