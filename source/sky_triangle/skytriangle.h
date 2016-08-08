@@ -21,7 +21,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render(glm::vec2 mouseSpeed, float time);
+    void render(glm::vec2 mouseSpeed, float time, bool rotate);
     void execute();
 
 protected:

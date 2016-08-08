@@ -25,6 +25,7 @@ using msecs = std::chrono::milliseconds;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 unsigned char renderMode = 0;
 bool renderModeChanged = true;
+bool rotate;
 bool lMouseButtonDown = false;
 glm::dvec2 cursorPos;
 glm::vec2 cursorSpeed;
@@ -64,6 +65,9 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
     case GLFW_KEY_V:
         renderMode = (++renderMode) % 3;
         renderModeChanged = true;
+        break;
+    case GLFW_KEY_R:
+        rotate = !rotate;
         break;
     }
 }
@@ -137,7 +141,7 @@ void render(float time)
     switch (renderMode)
     {
     case 0:
-        example1.render(cursorSpeed, time);
+        example1.render(cursorSpeed, time, rotate);
         break;
     case 1:
         example2.render(time);
@@ -145,7 +149,7 @@ void render(float time)
     case 2:
         gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(cursorSpeed, time);
+        example1.render(cursorSpeed, time, rotate);
 
         gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
         example2.render(time);
