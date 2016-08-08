@@ -109,7 +109,6 @@ void getMouseSpeed(GLFWwindow* window, float time)
         dragElapsed *= 0.001f; // time is now in seconds
 
         auto decrease = cursorStartSpeed / (1 + dragElapsed * dragElapsed * dragElapsed);
-        std::cout << decrease.x << std::endl;
         cursorSpeed = (cursorSpeed.x > 0.0) ? glm::max(minCursorSpeed, decrease) : glm::min(-minCursorSpeed, decrease);
     }
 }
