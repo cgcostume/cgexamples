@@ -26,11 +26,10 @@ std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std
 unsigned char renderMode = 0;
 bool renderModeChanged = true;
 bool lMouseButtonDown = false;
-glm::dvec2 mousePos;
-glm::vec2 mouseSpeed;
-const glm::vec2 minMouseSpeed = glm::vec2(0.005f);
-
-glm::vec2 mouseStartSpeed;
+glm::dvec2 cursorPos;
+glm::vec2 cursorSpeed;
+const glm::vec2 minCursorSpeed = glm::vec2(0.005f);
+glm::vec2 cursorStartSpeed;
 std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
 
 auto example1 = SkyTriangle();
@@ -75,7 +74,7 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
         if (GLFW_PRESS == action)
         {
             lMouseButtonDown = true;
-            glfwGetCursorPos(window, &mousePos.x, &mousePos.y);
+            glfwGetCursorPos(window, &cursorPos.x, &cursorPos.y);
         }
         else if (GLFW_RELEASE == action)
             lMouseButtonDown = false;
@@ -85,21 +84,19 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 void getMouseSpeed(GLFWwindow* window, float time)
 {
     // Mouse dragging
-    
-
     if (lMouseButtonDown) {
-        glm::dvec2 currentMousePos;
-        glfwGetCursorPos(window, &currentMousePos.x, &currentMousePos.y);
-        if (mousePos != currentMousePos)
+        glm::dvec2 currentCursorPos;
+        glfwGetCursorPos(window, &currentCursorPos.x, &currentCursorPos.y);
+        if (cursorPos != currentCursorPos)
         {
-            mouseSpeed = (currentMousePos - mousePos) * 0.002;
-            mouseStartSpeed = mouseSpeed;
+            cursorSpeed = (currentCursorPos - cursorPos) * 0.002;
+            cursorStartSpeed = cursorSpeed;
             dragStart = std::chrono::high_resolution_clock::now();
-            mousePos = currentMousePos;
+            cursorPos = currentCursorPos;
         }
         else
         {
-            mouseSpeed = glm::vec2(0.0);
+            cursorSpeed = glm::vec2(0.0);
         }
     }
     else
@@ -107,9 +104,9 @@ void getMouseSpeed(GLFWwindow* window, float time)
         auto dragElapsed = static_cast<float>(std::chrono::duration_cast<msecs>(std::chrono::high_resolution_clock::now() - dragStart).count());
         dragElapsed *= 0.001f; // time is now in seconds
 
-        auto decrease = mouseStartSpeed / (1 + dragElapsed * dragElapsed * dragElapsed);
+        auto decrease = cursorStartSpeed / (1 + dragElapsed * dragElapsed * dragElapsed);
         std::cout << decrease.x << std::endl;
-        mouseSpeed = (mouseSpeed.x > 0.0) ? glm::max(minMouseSpeed, decrease) : glm::min(-minMouseSpeed, decrease);
+        cursorSpeed = (cursorSpeed.x > 0.0) ? glm::max(minCursorSpeed, decrease) : glm::min(-minCursorSpeed, decrease);
     }
 }
 
@@ -140,7 +137,7 @@ void render(float time)
     switch (renderMode)
     {
     case 0:
-        example1.render(mouseSpeed, time);
+        example1.render(cursorSpeed, time);
         break;
     case 1:
         example2.render(time);
@@ -148,7 +145,7 @@ void render(float time)
     case 2:
         gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(mouseSpeed, time);
+        example1.render(cursorSpeed, time);
 
         gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
         example2.render(time);
