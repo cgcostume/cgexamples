@@ -21,14 +21,17 @@
 // unit, and have internal linkage."
 namespace
 {
-
+using msecs = std::chrono::milliseconds;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 unsigned char renderMode = 0;
 bool renderModeChanged = true;
 bool lMouseButtonDown = false;
 glm::dvec2 mousePos;
 glm::vec2 mouseSpeed;
-const glm::vec2 minMouseSpeed = glm::vec2(2.5f);
+const glm::vec2 minMouseSpeed = glm::vec2(0.005f);
+
+glm::vec2 mouseStartSpeed;
+std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
 
 auto example1 = SkyTriangle();
 auto example2 = e3task2();
@@ -79,15 +82,19 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void getMouseSpeed(GLFWwindow* window)
+void getMouseSpeed(GLFWwindow* window, float time)
 {
     // Mouse dragging
+    
+
     if (lMouseButtonDown) {
         glm::dvec2 currentMousePos;
         glfwGetCursorPos(window, &currentMousePos.x, &currentMousePos.y);
         if (mousePos != currentMousePos)
         {
-            mouseSpeed = currentMousePos - mousePos;
+            mouseSpeed = (currentMousePos - mousePos) * 0.002;
+            mouseStartSpeed = mouseSpeed;
+            dragStart = std::chrono::high_resolution_clock::now();
             mousePos = currentMousePos;
         }
         else
@@ -97,7 +104,12 @@ void getMouseSpeed(GLFWwindow* window)
     }
     else
     {
-        mouseSpeed = (mouseSpeed.x > 0.0) ? glm::max(minMouseSpeed, mouseSpeed - glm::vec2(0.1)) : glm::min(-minMouseSpeed, mouseSpeed + glm::vec2(0.1));
+        auto dragElapsed = static_cast<float>(std::chrono::duration_cast<msecs>(std::chrono::high_resolution_clock::now() - dragStart).count());
+        dragElapsed *= 0.001f; // time is now in seconds
+
+        auto decrease = mouseStartSpeed / (1 + dragElapsed * dragElapsed * dragElapsed);
+        std::cout << decrease.x << std::endl;
+        mouseSpeed = (mouseSpeed.x > 0.0) ? glm::max(minMouseSpeed, decrease) : glm::min(-minMouseSpeed, decrease);
     }
 }
 
@@ -112,7 +124,7 @@ void errorCallback(int errnum, const char * errmsg)
 
 }
 
-void render()
+void render(float time)
 {
     if(renderModeChanged)
     {
@@ -124,11 +136,6 @@ void render()
         std::cout << modes[renderMode] << std::endl;
         startTimePoint = std::chrono::high_resolution_clock::now();
     }
-
-    using msecs = std::chrono::milliseconds;
-    const auto now = std::chrono::high_resolution_clock::now();
-    auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
-    time *= 0.001f; // time is now in seconds
     
     switch (renderMode)
     {
@@ -201,9 +208,13 @@ int main(int /*argc*/, char ** /*argv*/)
     {
         glfwPollEvents();
 
-        getMouseSpeed(window);
+        const auto now = std::chrono::high_resolution_clock::now();
+        auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
+        time *= 0.001f; // time is now in seconds
 
-        render();
+        getMouseSpeed(window, time);
+
+        render(time);
 
         glfwSwapBuffers(window);
     }

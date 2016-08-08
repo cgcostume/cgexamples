@@ -190,7 +190,7 @@ void SkyTriangle::render(glm::vec2 mouseSpeed, float time)
     
     //m_angle = 0.f;
     //m_angle = time; // animation
-    m_angle = (m_angle > glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x * 0.001f; // mouse dragging
+    m_angle = (m_angle > glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x ; // mouse dragging
     
     const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
     //const auto inverseViewProjection = glm::inverse(projection * view);
