@@ -22,7 +22,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render(float time);
+    void render(float time, float angle);
     void execute();
 
 protected:

@@ -172,7 +172,7 @@ void SkyTriangle::resize(int w, int h)
     m_height = h;
 }
 
-void SkyTriangle::render(glm::vec2 mouseSpeed, float time, bool rotate)
+void SkyTriangle::render(float angle)
 {
     glViewport(0, 0, m_width, m_height);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -182,21 +182,15 @@ void SkyTriangle::render(glm::vec2 mouseSpeed, float time, bool rotate)
 
     glUseProgram(m_programs[0]);
     glUniform1f(m_uniformLocations[0], 0);
-
+    
     // setup view
 
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(sin(angle), 0.0f, cos(angle)), glm::vec3(0.f, 1.f, 0.f));
     const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
     
-    //m_angle = time; // animation
-    if(rotate)
-    {
-    m_angle = (m_angle > glm::radians(360.f)) ? 0 : m_angle + mouseSpeed.x ; // mouse dragging    
-    }
-    else m_angle = 0.f;
     
-    const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
-    //const auto inverseViewProjection = glm::inverse(projection * view);
+    //const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
+    const auto inverseViewProjection = glm::inverse(projection * view);
 
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));
@@ -217,5 +211,5 @@ void SkyTriangle::render(glm::vec2 mouseSpeed, float time, bool rotate)
 
 void SkyTriangle::execute()
 {
-    render(glm::vec2(0.0), 0.0f, false);
+    render(0.0f);
 }

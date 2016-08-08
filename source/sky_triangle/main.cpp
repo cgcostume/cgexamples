@@ -21,6 +21,7 @@
 // unit, and have internal linkage."
 namespace
 {
+float angle = 0.f;
 using msecs = std::chrono::milliseconds;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 unsigned char renderMode = 0;
@@ -137,21 +138,25 @@ void render(float time)
         startTimePoint = std::chrono::high_resolution_clock::now();
     }
     
+    if(rotate)
+        angle += cursorSpeed.x ; // mouse dragging
+
+    
     switch (renderMode)
     {
     case 0:
-        example1.render(cursorSpeed, time, rotate);
+        example1.render(angle);
         break;
     case 1:
-        example2.render(time);
+        example2.render(time, angle);
         break;
     case 2:
         gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(cursorSpeed, time, rotate);
+        example1.render(angle);
 
         gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
-        example2.render(time);
+        example2.render(time, angle);
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
         break;
     }

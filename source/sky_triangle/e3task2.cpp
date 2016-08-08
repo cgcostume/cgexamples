@@ -332,7 +332,7 @@ void e3task2::resize(int w, int h)
     m_height = h;
 }
 
-void e3task2::render(float time)
+void e3task2::render(float time, float angle)
 {
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     glViewport(0, 0, m_width, m_height);
@@ -344,13 +344,14 @@ void e3task2::render(float time)
     //modelMatrix = glm::rotate(modelMatrix, cos(time * 0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01f));
 
-    auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), time * 0.08f, glm::vec3(0.f, 1.f, 0.f)) 
+    auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
 
-    m_direction = glm::rotate(m_direction, -time * 0.01f, glm::vec3(0.f, 1.f, 0.f));
+    //m_direction = glm::rotate(m_direction, time * -0.001f, glm::vec3(0.f, 1.f, 0.f));
+        
 
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-    const auto projection = glm::perspective(glm::radians(80.0f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
+    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(sin(angle), 0.f, cos(angle)), glm::vec3(0.f, 1.f, 0.f));
+    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
     auto viewProjection = projection * view;
 
 
@@ -395,5 +396,5 @@ void e3task2::render(float time)
 
 void e3task2::execute()
 {
-    render(0.0f);
+    render(0.0f, 0.0f);
 }
