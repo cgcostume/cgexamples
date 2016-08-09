@@ -21,7 +21,6 @@
 // unit, and have internal linkage."
 namespace
 {
-float angle = 0.f;
 using msecs = std::chrono::milliseconds;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 unsigned char renderMode = 0;
@@ -33,6 +32,7 @@ glm::vec2 cursorSpeed;
 const glm::vec2 minCursorSpeed = glm::vec2(0.005f);
 glm::vec2 cursorStartSpeed;
 std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
+float angle = 0.f;
 
 auto example1 = SkyTriangle();
 auto example2 = e3task2();

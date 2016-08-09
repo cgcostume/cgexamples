@@ -2,7 +2,6 @@
 #include "skytriangle.h"
 
 #include <cmath>
-#include <iostream>
 #include <string>
 
 #pragma warning(push)

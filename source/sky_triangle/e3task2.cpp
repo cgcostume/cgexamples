@@ -15,9 +15,6 @@
 
 #include <cgutils/common.h>
 
-#include <glm/gtx/rotate_vector.hpp> // TODO: necessary?
-
-
 using namespace gl32core;
 using namespace cgutils;
 
@@ -346,8 +343,6 @@ void e3task2::render(float time, float angle)
 
     auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
-
-    //m_direction = glm::rotate(m_direction, time * -0.001f, glm::vec3(0.f, 1.f, 0.f));
         
 
     const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(sin(angle), 0.f, cos(angle)), glm::vec3(0.f, 1.f, 0.f));
