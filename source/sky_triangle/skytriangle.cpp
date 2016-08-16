@@ -17,8 +17,7 @@
 using namespace gl32core;
 
 
-SkyTriangle::SkyTriangle():
-m_angle(0.f)
+SkyTriangle::SkyTriangle()
 {
 }
 
@@ -170,7 +169,7 @@ void SkyTriangle::resize(int w, int h)
     m_height = h;
 }
 
-void SkyTriangle::render(float angle)
+void SkyTriangle::render(glm::tmat4x4<float> viewProjection)
 {
     glViewport(0, 0, m_width, m_height);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -181,19 +180,13 @@ void SkyTriangle::render(float angle)
     glUseProgram(m_programs[0]);
     glUniform1f(m_uniformLocations[0], 0);
     
-    // setup view
-    glm::vec3 direction(sin(glm::radians(angle)), 0.f, cos(glm::radians(angle)));
-
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 0.f), direction, glm::vec3(0.f, 1.f, 0.f));
-    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
-
-    
     //const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
-    const auto inverseViewProjection = glm::inverse(projection * view);
+    const auto inverseViewProjection = glm::inverse(viewProjection);
 
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));
-    glUniformMatrix4fv(m_uniformLocations[2], 1, GL_FALSE, glm::value_ptr(projection));
+    //glUniformMatrix4fv(m_uniformLocations[2], 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(m_uniformLocations[3], 1, GL_FALSE, glm::value_ptr(glm::vec3(0.0f,0.0f,1.0f)));
 
     // draw
 
@@ -210,5 +203,4 @@ void SkyTriangle::render(float angle)
 
 void SkyTriangle::execute()
 {
-    render(0.0f);
 }

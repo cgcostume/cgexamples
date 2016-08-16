@@ -1,5 +1,5 @@
 
-#include "e3task2.h"
+#include "Skybox.h"
 
 #include <string>
 #include <vector>
@@ -45,11 +45,11 @@ const std::vector<glm::vec3> cubeData = {
 }
 
 
-e3task2::e3task2()
+Skybox::Skybox()
 {
 }
 
-e3task2::~e3task2()
+Skybox::~Skybox()
 {
     // Flag all aquired resources for deletion (hint: driver decides when to actually delete them; see: shared contexts)
     glDeleteBuffers(1, &m_skyboxVertices);
@@ -67,7 +67,7 @@ e3task2::~e3task2()
     glDeleteVertexArrays(1, &m_modelVAO);
 }
 
-void e3task2::initialize()
+void Skybox::initialize()
 {
     // set color used when clearing the frame buffer
     glClearColor(0.12f, 0.14f, 0.18f, 1.0f);
@@ -171,12 +171,9 @@ void e3task2::initialize()
     // optional: bind the fragment shader output 0 to "out_color", which is 0 by default
     glBindFragDataLocation(m_skyboxProgram, 0, "out_color");
     glBindFragDataLocation(m_modelProgram, 0, "out_color");
-
-    m_direction = glm::vec3(0.f, 0.f, -1.f);
-
 }
 
-bool e3task2::loadShaders()
+bool Skybox::loadShaders()
 {
     //loadModelShader();
     loadSkyboxShader();
@@ -185,7 +182,7 @@ bool e3task2::loadShaders()
     return true;
 }
 
-bool e3task2::loadModelShader()
+bool Skybox::loadModelShader()
 {
     // attach 1 source to vertex shader
     const auto vertexShaderSource = textFromFile("e3task2/e3task2_model.vert");
@@ -227,10 +224,10 @@ bool e3task2::loadModelShader()
     return true;
 }
 
-bool e3task2::loadSkyboxShader()
+bool Skybox::loadSkyboxShader()
 {
     // attach 1 source to vertex shader
-    const auto vertexShaderSource = textFromFile("data/sky_triangle/e3task2_skybox.vert");
+    const auto vertexShaderSource = textFromFile("data/sky_triangle/skybox.vert");
     const auto vertexShaderSource_ptr = vertexShaderSource.c_str();
     if(vertexShaderSource_ptr)
         glShaderSource(m_skyboxVertexShader, 1, &vertexShaderSource_ptr, 0);
@@ -241,7 +238,7 @@ bool e3task2::loadSkyboxShader()
     bool success = checkForCompilationError(m_skyboxVertexShader, "skybox vertex shader");
 
     // attach 1 source to fragment shader
-    const auto fragmentShaderSource = textFromFile("data/sky_triangle/e3task2_skybox.frag");
+    const auto fragmentShaderSource = textFromFile("data/sky_triangle/skybox.frag");
     const auto fragmentShaderSource_ptr = fragmentShaderSource.c_str();
     if(fragmentShaderSource_ptr)
         glShaderSource(m_skyboxFragmentShader, 1, &fragmentShaderSource_ptr, 0);
@@ -269,7 +266,7 @@ bool e3task2::loadSkyboxShader()
     return true;
 }
 
-void e3task2::loadUniformLocations()
+void Skybox::loadUniformLocations()
 {
     m_skyboxLocation  = glGetUniformLocation(m_skyboxProgram, "skybox");
     m_transformMatrixLocation = glGetUniformLocation(m_skyboxProgram, "transform");
@@ -292,7 +289,7 @@ void e3task2::loadUniformLocations()
     glUseProgram(0);
 }
 
-bool e3task2::loadTextures()
+bool Skybox::loadTextures()
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture);
 
@@ -323,13 +320,13 @@ bool e3task2::loadTextures()
     return true;
 }
 
-void e3task2::resize(int w, int h)
+void Skybox::resize(int w, int h)
 {
     m_width = w;
     m_height = h;
 }
 
-void e3task2::render(float time, float angle)
+void Skybox::render(float time, glm::tmat4x4<float, glm::highp> viewProjection)
 {
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     glViewport(0, 0, m_width, m_height);
@@ -343,13 +340,6 @@ void e3task2::render(float time, float angle)
 
     auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
-        
-    glm::vec3 direction(sin(glm::radians(angle)), 0.f, cos(glm::radians(angle)));
-
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 0.f), direction, glm::vec3(0.f, 1.f, 0.f));
-    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
-    auto viewProjection = projection * view;
-
 
     glDisable(GL_CULL_FACE);
 
@@ -390,7 +380,7 @@ void e3task2::render(float time, float angle)
     glBindVertexArray(0);
 }
 
-void e3task2::execute()
+
+void Skybox::execute()
 {
-    render(0.0f, 0.0f);
 }

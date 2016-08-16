@@ -12,7 +12,14 @@
 #include <cgutils/common.h>
 
 #include "skytriangle.h"
-#include "e3task2.h"
+#include "Skybox.h"
+
+#pragma warning(push)
+#pragma warning(disable : 4201)
+#include <glm/geometric.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#pragma warning(pop)
 
 
 // From http://en.cppreference.com/w/cpp/language/namespace:
@@ -61,19 +68,30 @@ struct Cursor
 };
 struct RenderMode
 {
-    unsigned char value = 0;
-    bool changed = true;
+    enum class DrawMode {Skytriangle, Cubemap, Both};
+    int drawMode = 0;
+    bool drawModeChanged = true;
+    enum class CameraMode { Centered, Orbit };
+    int cameraMode = 0;
     bool rotate;
     float angle = 0.f;
+};
+
+struct Camera
+{
+    glm::vec3 eye;
+    glm::vec3 direction;
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 };
 
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
 
 auto example1 = SkyTriangle();
-auto example2 = e3task2();
+auto example2 = Skybox();
     
 RenderMode renderMode;
 Cursor cursor;
+Camera camera;
 
 const auto canvasWidth = 1440; // in pixel
 const auto canvasHeight = 900; // in pixel
@@ -102,11 +120,14 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
         example2.loadShaders();
         break;
     case GLFW_KEY_V:
-        renderMode.value = (++renderMode.value) % 3;
-        renderMode.changed = true;
+        renderMode.drawMode = (++renderMode.drawMode) % 3;
+        renderMode.drawModeChanged = true;
         break;
     case GLFW_KEY_R:
         renderMode.rotate = !renderMode.rotate;
+        break;
+    case GLFW_KEY_C:
+        renderMode.cameraMode = (++renderMode.cameraMode) % 2;
         break;
     }
 }
@@ -137,14 +158,14 @@ void errorCallback(int errnum, const char * errmsg)
 
 void render(float time)
 {
-    if(renderMode.changed)
+    if(renderMode.drawModeChanged)
     {
-        renderMode.changed = false;
+        renderMode.drawModeChanged = false;
         static const auto modes = std::array<std::string, 3>{
             "(0) environment with screen aligned triangle: ",
             "(1) rendering with cubemap: ",
             "(2) both combined. left screen aligned triangle, right cubemap: "};
-        std::cout << modes[renderMode.value] << std::endl;
+        std::cout << modes[renderMode.drawMode] << std::endl;
         startTimePoint = std::chrono::high_resolution_clock::now();
     }
     
@@ -153,21 +174,36 @@ void render(float time)
     if (renderMode.angle > 360.f) renderMode.angle = 0.f;
     else if (renderMode.angle < 0.f) renderMode.angle = 360.f;
     
-    switch (renderMode.value)
+    switch (renderMode.cameraMode)
     {
     case 0:
-        example1.render(renderMode.angle);
+        camera.eye = glm::vec3(0.0f);
+        camera.direction = glm::vec3(sin(glm::radians(renderMode.angle)), 0.f, cos(glm::radians(renderMode.angle)));
         break;
     case 1:
-        example2.render(time, renderMode.angle);
+        camera.eye = glm::vec3(sin(glm::radians(renderMode.angle)), 0.0f, cos(glm::radians(renderMode.angle)));
+        camera.direction = -camera.eye;
+    }
+
+    const auto view = glm::lookAt(camera.eye, camera.direction, camera.up);
+    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(canvasWidth) / canvasHeight, 1.f, 20.f);
+    auto viewProjection = projection * view;
+
+    switch (renderMode.drawMode)
+    {
+    case static_cast<int>(RenderMode::DrawMode::Skytriangle):
+        example1.render(viewProjection);
         break;
-    case 2:
+    case static_cast<int>(RenderMode::DrawMode::Cubemap) :
+        example2.render(time, viewProjection);
+        break;
+    case static_cast<int>(RenderMode::DrawMode::Both) :
         gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(renderMode.angle);
+        example1.render(viewProjection);
 
         gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
-        example2.render(time, renderMode.angle);
+        example2.render(time, viewProjection);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
         break;

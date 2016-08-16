@@ -21,7 +21,7 @@ public:
     bool loadTextures();
 
     void resize(int w, int h);
-    void render(float angle);
+    void render(glm::tmat4x4<float> viewProjection);
     void execute();
 
 protected:
@@ -43,6 +43,4 @@ protected:
 
     int m_width;
     int m_height;
-    float m_angle;
-
 };

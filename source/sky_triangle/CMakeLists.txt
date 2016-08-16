@@ -35,10 +35,10 @@ set(sources
 
     skytriangle.cpp
     skytriangle.h
-	e3task2.cpp
-	e3task2.h
-	${data}/e3task2_skybox.vert
-	${data}/e3task2_skybox.frag
+	skybox.cpp
+	skybox.h
+	${data}/skybox.vert
+	${data}/skybox.frag
     ${data}/skytriangle.frag
     ${data}/skytriangle.vert
 )
