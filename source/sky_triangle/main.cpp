@@ -31,7 +31,7 @@ struct Cursor
     glm::vec2 dragStartSpeed;
     std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
 
-    void updateDragSpeed(GLFWwindow* window, float time)
+    void updateDragSpeed(GLFWwindow* window)
     {
         // Mouse dragging
         if (lMouseButtonDown) {
@@ -229,7 +229,7 @@ int main(int /*argc*/, char ** /*argv*/)
         auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
         time *= 0.001f; // time is now in seconds
 
-        cursor.updateDragSpeed(window, time);
+        cursor.updateDragSpeed(window);
 
         render(time);
 
