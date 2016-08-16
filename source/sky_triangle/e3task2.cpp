@@ -344,8 +344,9 @@ void e3task2::render(float time, float angle)
     auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
         * glm::vec4(0.f, 0.f, 4.f, 1.0));
         
+    glm::vec3 direction(sin(glm::radians(angle)), 0.f, cos(glm::radians(angle)));
 
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(sin(angle), 0.f, cos(angle)), glm::vec3(0.f, 1.f, 0.f));
+    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 0.f), direction, glm::vec3(0.f, 1.f, 0.f));
     const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
     auto viewProjection = projection * view;
 

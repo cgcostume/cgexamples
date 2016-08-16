@@ -148,9 +148,10 @@ void render(float time)
         startTimePoint = std::chrono::high_resolution_clock::now();
     }
     
-    if(renderMode.rotate)
-        renderMode.angle += cursor.speed.x ; // mouse dragging
-
+    if (renderMode.rotate)
+        renderMode.angle += cursor.speed.x;
+    if (renderMode.angle > 360.f) renderMode.angle = 0.f;
+    else if (renderMode.angle < 0.f) renderMode.angle = 360.f;
     
     switch (renderMode.value)
     {

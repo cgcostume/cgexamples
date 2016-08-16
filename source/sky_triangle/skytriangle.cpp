@@ -14,7 +14,6 @@
 
 #include <cgutils/common.h>
 
-
 using namespace gl32core;
 
 
@@ -183,10 +182,11 @@ void SkyTriangle::render(float angle)
     glUniform1f(m_uniformLocations[0], 0);
     
     // setup view
+    glm::vec3 direction(sin(glm::radians(angle)), 0.f, cos(glm::radians(angle)));
 
-    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(sin(angle), 0.0f, cos(angle)), glm::vec3(0.f, 1.f, 0.f));
+    const auto view = glm::lookAt(glm::vec3(0.f, 0.f, 0.f), direction, glm::vec3(0.f, 1.f, 0.f));
     const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
-    
+
     
     //const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
     const auto inverseViewProjection = glm::inverse(projection * view);
