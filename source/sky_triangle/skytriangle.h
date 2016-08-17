@@ -1,8 +1,6 @@
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
 
-#include <chrono>
-
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -20,7 +18,6 @@ public:
     bool loadShaders();
     bool loadTextures();
 
-    void resize(int w, int h);
     void render(glm::tmat4x4<float> viewProjection);
     void execute();
 
@@ -38,9 +35,4 @@ protected:
 
     std::array<gl::GLuint, 1> m_textures;
     std::array<gl::GLuint, 3> m_uniformLocations;
-
-    using msecs = std::chrono::duration<float, std::chrono::milliseconds::period>;
-
-    int m_width;
-    int m_height;
 };

@@ -69,9 +69,6 @@ Skybox::~Skybox()
 
 void Skybox::initialize()
 {
-    // set color used when clearing the frame buffer
-    glClearColor(0.12f, 0.14f, 0.18f, 1.0f);
-
     //glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     //glEnable(GL_DEPTH_TEST);
 
@@ -320,26 +317,15 @@ bool Skybox::loadTextures()
     return true;
 }
 
-void Skybox::resize(int w, int h)
+void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection)
 {
-    m_width = w;
-    m_height = h;
-}
 
-void Skybox::render(float time, glm::tmat4x4<float, glm::highp> viewProjection)
-{
-    // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
-    glViewport(0, 0, m_width, m_height);
-
-    // clear offscreen-framebuffer color attachment (no depth attachment configured and thus omitting GL_DEPTH_BUFFER_BIT)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    auto modelMatrix = glm::rotate(glm::mat4(1.f), time * 0.11f, glm::vec3(0.5f, 0.0f, 1.0f));
+    //auto modelMatrix = glm::rotate(glm::mat4(1.f), time * 0.11f, glm::vec3(0.5f, 0.0f, 1.0f));
     //modelMatrix = glm::rotate(modelMatrix, cos(time * 0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01f));
+    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01f));
 
-    auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
-        * glm::vec4(0.f, 0.f, 4.f, 1.0));
+    /*auto origin = glm::vec3(glm::rotate(glm::mat4(1.f), -time, glm::vec3(0.f, 1.f, 0.f))
+        * glm::vec4(0.f, 0.f, 4.f, 1.0));*/
 
     glDisable(GL_CULL_FACE);
 
@@ -348,10 +334,10 @@ void Skybox::render(float time, glm::tmat4x4<float, glm::highp> viewProjection)
 
     glUseProgram(m_modelProgram);
 
-    glUniformMatrix4fv(m_modelProgramModelLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-    glUniformMatrix3fv(m_modelProgramNormalLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3(glm::inverse(glm::transpose(modelMatrix)))));
+    //glUniformMatrix4fv(m_modelProgramModelLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    //glUniformMatrix3fv(m_modelProgramNormalLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3(glm::inverse(glm::transpose(modelMatrix)))));
     glUniformMatrix4fv(m_modelProgramViewProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glUniform3f(m_modelProgramEyeLocation, origin.x, origin.y, origin.z);
+    //glUniform3f(m_modelProgramEyeLocation, origin.x, origin.y, origin.z);
 
     glBindVertexArray(m_modelVAO);
     

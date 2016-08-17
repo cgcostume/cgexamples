@@ -10,8 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #pragma warning(pop)
 
-#include <glbinding/gl32ext/gl.h>
-
 #include <cgutils/common.h>
 
 using namespace gl32core;
@@ -38,8 +36,6 @@ SkyTriangle::~SkyTriangle()
 
 void SkyTriangle::initialize()
 {
-    glClearColor(0.12f, 0.14f, 0.18f, 1.0f);
-
     glGenBuffers(1, m_vbos.data());
 
     static const float verticesScrAT[] = { -1.f, -3.f, -1.f, 1.f, 3.f, 1.f };
@@ -163,16 +159,8 @@ bool SkyTriangle::loadTextures()
     return true;
 }
 
-void SkyTriangle::resize(int w, int h)
-{
-    m_width = w;
-    m_height = h;
-}
-
 void SkyTriangle::render(glm::tmat4x4<float> viewProjection)
 {
-    glViewport(0, 0, m_width, m_height);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);

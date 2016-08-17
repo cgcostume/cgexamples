@@ -1,4 +1,6 @@
 
+#include "scene.h"
+
 #include <iostream>
 
 // C++ library for creating windows with OpenGL contexts and receiving 
@@ -8,18 +10,6 @@
 // C++ binding for the OpenGL API. 
 // https://github.com/cginternals/glbinding
 #include <glbinding/Binding.h>
-
-#include <cgutils/common.h>
-
-#include "skytriangle.h"
-#include "Skybox.h"
-
-#pragma warning(push)
-#pragma warning(disable : 4201)
-#include <glm/geometric.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#pragma warning(pop)
 
 
 // From http://en.cppreference.com/w/cpp/language/namespace:
@@ -66,32 +56,9 @@ struct Cursor
         }
     }
 };
-struct RenderMode
-{
-    enum class DrawMode {Skytriangle, Cubemap, Both};
-    int drawMode = 0;
-    bool drawModeChanged = true;
-    enum class CameraMode { Centered, Orbit };
-    int cameraMode = 0;
-    bool rotate;
-    float angle = 0.f;
-};
 
-struct Camera
-{
-    glm::vec3 eye;
-    glm::vec3 direction;
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-};
-
-std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint = std::chrono::high_resolution_clock::now();
-
-auto example1 = SkyTriangle();
-auto example2 = Skybox();
-    
-RenderMode renderMode;
+Scene scene;    
 Cursor cursor;
-Camera camera;
 
 const auto canvasWidth = 1440; // in pixel
 const auto canvasHeight = 900; // in pixel
@@ -102,8 +69,7 @@ int frameBufferWidth, frameBufferHeight;
 void resizeCallback(GLFWwindow * window, int width, int height)
 {
     glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-    example1.resize(frameBufferWidth, frameBufferHeight);
-    example2.resize(frameBufferWidth, frameBufferHeight);
+    scene.resize(frameBufferWidth, frameBufferHeight);
 }
 
 // "The key callback ... which is called when a key is pressed, repeated or released."
@@ -116,18 +82,16 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
     switch (key)
     {
     case GLFW_KEY_F5:
-        example1.loadShaders();
-        example2.loadShaders();
+        scene.loadShaders();
         break;
     case GLFW_KEY_V:
-        renderMode.drawMode = (++renderMode.drawMode) % 3;
-        renderMode.drawModeChanged = true;
+        scene.changeDrawMode();
         break;
     case GLFW_KEY_R:
-        renderMode.rotate = !renderMode.rotate;
+        scene.toggleRotation();
         break;
     case GLFW_KEY_C:
-        renderMode.cameraMode = (++renderMode.cameraMode) % 2;
+        scene.changeCameraMode();
         break;
     }
 }
@@ -154,60 +118,6 @@ void errorCallback(int errnum, const char * errmsg)
     std::cerr << errnum << ": " << errmsg << std::endl;
 }
 
-}
-
-void render(float time)
-{
-    if(renderMode.drawModeChanged)
-    {
-        renderMode.drawModeChanged = false;
-        static const auto modes = std::array<std::string, 3>{
-            "(0) environment with screen aligned triangle: ",
-            "(1) rendering with cubemap: ",
-            "(2) both combined. left screen aligned triangle, right cubemap: "};
-        std::cout << modes[renderMode.drawMode] << std::endl;
-        startTimePoint = std::chrono::high_resolution_clock::now();
-    }
-    
-    if (renderMode.rotate)
-        renderMode.angle += cursor.speed.x;
-    if (renderMode.angle > 360.f) renderMode.angle = 0.f;
-    else if (renderMode.angle < 0.f) renderMode.angle = 360.f;
-    
-    switch (renderMode.cameraMode)
-    {
-    case 0:
-        camera.eye = glm::vec3(0.0f);
-        camera.direction = glm::vec3(sin(glm::radians(renderMode.angle)), 0.f, cos(glm::radians(renderMode.angle)));
-        break;
-    case 1:
-        camera.eye = glm::vec3(sin(glm::radians(renderMode.angle)), 0.0f, cos(glm::radians(renderMode.angle)));
-        camera.direction = -camera.eye;
-    }
-
-    const auto view = glm::lookAt(camera.eye, camera.direction, camera.up);
-    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(canvasWidth) / canvasHeight, 1.f, 20.f);
-    auto viewProjection = projection * view;
-
-    switch (renderMode.drawMode)
-    {
-    case static_cast<int>(RenderMode::DrawMode::Skytriangle):
-        example1.render(viewProjection);
-        break;
-    case static_cast<int>(RenderMode::DrawMode::Cubemap) :
-        example2.render(time, viewProjection);
-        break;
-    case static_cast<int>(RenderMode::DrawMode::Both) :
-        gl::glScissor(0, 0, frameBufferWidth/2, frameBufferHeight);
-        glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(viewProjection);
-
-        gl::glScissor(frameBufferWidth / 2, 0, frameBufferWidth / 2, frameBufferHeight);
-        example2.render(time, viewProjection);
-
-        glDisable(gl::GLenum::GL_SCISSOR_TEST);
-        break;
-    }
 }
 
 int main(int /*argc*/, char ** /*argv*/)
@@ -244,6 +154,7 @@ int main(int /*argc*/, char ** /*argv*/)
     std::cout << "Key Binding: " << std::endl
         << "  [F5] reload shaders" << std::endl
         << "  [v] switch draw mode" << std::endl
+        << "  [c] switch camera mode" << std::endl
         << "  [r] toggle rotation" << std::endl
         << std::endl;
 
@@ -251,28 +162,23 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glbinding::Binding::initialize(false);
 
-    example1.resize(frameBufferWidth, frameBufferHeight);
-    example1.initialize();
-
-    example2.resize(frameBufferWidth, frameBufferHeight);
-    example2.initialize();
+    scene.initialize();
+    scene.resize(frameBufferWidth, frameBufferHeight);
 
     while (!glfwWindowShouldClose(window)) // main loop
     {
         glfwPollEvents();
 
         const auto now = std::chrono::high_resolution_clock::now();
-        auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
-        time *= 0.001f; // time is now in seconds
+        //auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
+        //time *= 0.001f; // time is now in seconds
 
         cursor.updateDragSpeed(window);
 
-        render(time);
+        scene.render(cursor.speed.x);
 
         glfwSwapBuffers(window);
     }
-
-    example1.cleanup();
 
     glfwMakeContextCurrent(nullptr);
 

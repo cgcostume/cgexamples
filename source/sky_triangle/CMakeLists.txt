@@ -33,7 +33,9 @@ set(data "${CMAKE_SOURCE_DIR}/data/${target}")
 set(sources
     main.cpp
 
-    skytriangle.cpp
+    scene.cpp
+	scene.h
+	skytriangle.cpp
     skytriangle.h
 	skybox.cpp
 	skybox.h

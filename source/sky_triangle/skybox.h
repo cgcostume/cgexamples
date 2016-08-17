@@ -3,7 +3,6 @@
 #include <glm/vec2.hpp>
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
-#include <glm/detail/type_vec3.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -22,8 +21,7 @@ public:
     bool loadShaders();
     bool loadTextures();
 
-    void resize(int w, int h);
-    void render(float time, glm::tmat4x4<float, glm::highp> viewProjection);
+    void render(glm::tmat4x4<float, glm::highp> viewProjection);
     void execute();
 
 protected:
@@ -61,10 +59,5 @@ protected:
     gl::GLint m_modelProgramViewProjectionLocation;
     gl::GLint m_modelProgramEyeLocation;
     gl::GLint m_transformMatrixLocation;
-
-    // Canvas
-
-    int m_width;
-    int m_height;
 
 };
