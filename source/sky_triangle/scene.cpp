@@ -26,6 +26,8 @@ void Scene::initialize()
 
     example1.initialize();
     example2.initialize();
+    model.initialize();
+    model.setNumCubes(1);
 }
 
 void Scene::loadShaders()
@@ -39,6 +41,8 @@ void Scene::resize(int w, int h)
     m_width = w;
     m_height = h;
     m_padding = m_width / 1000.f;
+    
+    model.resize(w, h);
 }
 
 void Scene::changeDrawMode()
@@ -68,11 +72,11 @@ void Scene::render(float speed)
     if (m_drawModeChanged)
     {
         m_drawModeChanged = false;
-        static const auto modes = std::array<std::string, 3>{
+        static const auto drawModes = std::array<std::string, 3>{
                 "(0) environment with screen aligned triangle: ",
                 "(1) rendering with cubemap: ",
                 "(2) both combined. left screen aligned triangle, right cubemap: "};
-        std::cout << modes[m_drawMode] << std::endl;
+        std::cout << drawModes[m_drawMode] << std::endl;
         m_startTimePoint = std::chrono::high_resolution_clock::now();
     }
 
@@ -81,6 +85,8 @@ void Scene::render(float speed)
         m_angle += speed;
     if (m_angle > 360.f) m_angle = 0.f;
     else if (m_angle < 0.f) m_angle = 360.f;
+    
+    auto modelMatrix = glm::mat4(1.f);
 
     // update camera
     switch (m_cameraMode)
@@ -90,8 +96,9 @@ void Scene::render(float speed)
         m_direction = glm::vec3(sin(glm::radians(m_angle)), 0.f, cos(glm::radians(m_angle)));
         break;
     case 1:
-        m_eye = glm::vec3(sin(glm::radians(m_angle)) * 10.f, 1.0f, cos(glm::radians(m_angle)) * 10.f);
+        m_eye = glm::vec3(sin(glm::radians(m_angle)) * 10.f, 0.0f, cos(glm::radians(m_angle)) * 10.f);
         m_direction = -m_eye;
+        modelMatrix = glm::rotate(glm::mat4(1.f),  m_angle, glm::vec3(0.0f, 1.0f, 0.0f));
         break;
     }
 
@@ -103,20 +110,23 @@ void Scene::render(float speed)
     switch (m_drawMode)
     {
     case static_cast<int>(DrawMode::Skytriangle) :
-        example1.render(viewProjection, m_eye);
+        //example1.render(viewProjection, modelMatrix, m_eye);
+        model.draw();
         break;
     case static_cast<int>(DrawMode::Cubemap) :
         example2.render(viewProjection, m_eye);
+        model.draw();
         break;
     case static_cast<int>(DrawMode::Both) :
         gl::glScissor(0, 0, m_width / 2 - m_padding, m_height);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(viewProjection, m_eye);
+        example1.render(viewProjection, modelMatrix, m_eye);
 
         gl::glScissor(m_width / 2 + m_padding, 0, m_width / 2 - m_padding, m_height);
         example2.render(viewProjection, m_eye);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
+        model.draw();
         break;
     }
 }

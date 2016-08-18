@@ -34,13 +34,21 @@ set(sources
     main.cpp
 
     scene.cpp
-	scene.h
-	skytriangle.cpp
+    scene.h
+    skytriangle.cpp
     skytriangle.h
-	skybox.cpp
-	skybox.h
-	${data}/skybox.vert
-	${data}/skybox.frag
+    skybox.cpp
+    skybox.h
+    CubeScape.cpp
+    CubeScape.h
+    ${data}/skybox.vert
+    ${data}/skybox.frag
+    ${data}/skybox_model.vert
+    ${data}/skybox_model.geom
+    ${data}/skybox_model.frag
+    ${data}/cubescape.vert
+    ${data}/cubescape.geom
+    ${data}/cubescape.frag
     ${data}/skytriangle.frag
     ${data}/skytriangle.vert
 )

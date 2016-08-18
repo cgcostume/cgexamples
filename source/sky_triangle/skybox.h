@@ -28,6 +28,8 @@ protected:
     bool loadModelShader();
     bool loadSkyboxShader();
     void loadUniformLocations();
+    
+    void loadCubeModel();
 
 protected:
     // Skybox
@@ -42,11 +44,13 @@ protected:
     // Model
 
     gl::GLuint m_modelVertices;
-    gl::GLuint m_modelNormals;
+    gl::GLuint m_modelIndices;
     gl::GLuint m_modelProgram;
     gl::GLuint m_modelVertexShader;
+    gl::GLuint m_modelGeometryShader;
     gl::GLuint m_modelFragmentShader;
     gl::GLuint m_modelVAO;
+    gl::GLuint m_modelTextures[3];
 
     int m_modelVertexCount;
 
@@ -55,9 +59,11 @@ protected:
     gl::GLint m_skyboxLocation;
     gl::GLint m_cubemapLocation;
     gl::GLint m_modelProgramModelLocation;
-    gl::GLint m_modelProgramNormalLocation;
     gl::GLint m_modelProgramViewProjectionLocation;
     gl::GLint m_modelProgramEyeLocation;
     gl::GLint m_transformMatrixLocation;
+    
+    gl::GLint a_vertex;
+    gl::GLint m_modelVieProjectionLocation;
 
 };

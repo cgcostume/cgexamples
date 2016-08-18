@@ -1,9 +1,8 @@
 #include "skybox.h"
 #include "skytriangle.h"
+#include "CubeScape.h"
 
 #include <chrono>
-
-#include <glm/vec2.hpp>
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
 #include <glm/detail/type_vec3.hpp>
@@ -36,6 +35,7 @@ protected:
 
     SkyTriangle example1;
     Skybox example2;
+    CubeScape model;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimePoint;
 
