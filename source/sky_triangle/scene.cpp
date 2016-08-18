@@ -90,7 +90,7 @@ void Scene::render(float speed)
         m_direction = glm::vec3(sin(glm::radians(m_angle)), 0.f, cos(glm::radians(m_angle)));
         break;
     case 1:
-        m_eye = glm::vec3(sin(glm::radians(m_angle)), 0.0f, cos(glm::radians(m_angle)));
+        m_eye = glm::vec3(sin(glm::radians(m_angle)) * 10.f, 1.0f, cos(glm::radians(m_angle)) * 10.f);
         m_direction = -m_eye;
         break;
     }
@@ -103,18 +103,18 @@ void Scene::render(float speed)
     switch (m_drawMode)
     {
     case static_cast<int>(DrawMode::Skytriangle) :
-        example1.render(viewProjection);
+        example1.render(viewProjection, m_eye);
         break;
     case static_cast<int>(DrawMode::Cubemap) :
-        example2.render(viewProjection);
+        example2.render(viewProjection, m_eye);
         break;
     case static_cast<int>(DrawMode::Both) :
         gl::glScissor(0, 0, m_width / 2 - m_padding, m_height);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(viewProjection);
+        example1.render(viewProjection, m_eye);
 
         gl::glScissor(m_width / 2 + m_padding, 0, m_width / 2 - m_padding, m_height);
-        example2.render(viewProjection);
+        example2.render(viewProjection, m_eye);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
         break;

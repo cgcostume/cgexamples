@@ -317,7 +317,7 @@ bool Skybox::loadTextures()
     return true;
 }
 
-void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection)
+void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 eye)
 {
 
     //auto modelMatrix = glm::rotate(glm::mat4(1.f), time * 0.11f, glm::vec3(0.5f, 0.0f, 1.0f));
@@ -349,6 +349,7 @@ void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection)
     glUseProgram(m_skyboxProgram);
 
     glUniformMatrix4fv(m_transformMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glUniform3f(m_modelProgramEyeLocation, eye.x, eye.x, eye.z);
 
     glBindVertexArray(m_skyboxVAO);
 

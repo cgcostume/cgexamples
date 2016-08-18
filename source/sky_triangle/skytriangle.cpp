@@ -124,6 +124,7 @@ void SkyTriangle::loadUniformLocations()
     
     m_uniformLocations[1] = glGetUniformLocation(m_programs[0], "inverseViewProjection");
     m_uniformLocations[2] = glGetUniformLocation(m_programs[0], "inverseProjection");
+    m_uniformLocations[3] = glGetUniformLocation(m_programs[0], "eye");
 
     glUseProgram(0);
 }
@@ -159,7 +160,7 @@ bool SkyTriangle::loadTextures()
     return true;
 }
 
-void SkyTriangle::render(glm::tmat4x4<float> viewProjection)
+void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::vec3 eye)
 {
 
     glActiveTexture(GL_TEXTURE0);
@@ -171,10 +172,9 @@ void SkyTriangle::render(glm::tmat4x4<float> viewProjection)
     //const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
     const auto inverseViewProjection = glm::inverse(viewProjection);
 
-
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));
     //glUniformMatrix4fv(m_uniformLocations[2], 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(m_uniformLocations[3], 1, GL_FALSE, glm::value_ptr(glm::vec3(0.0f,0.0f,1.0f)));
+    glUniformMatrix4fv(m_uniformLocations[3], 1, GL_FALSE, glm::value_ptr(eye));
 
     // draw
 
