@@ -309,8 +309,8 @@ void Skybox::loadUniformLocations()
 {
     m_skyboxLocation  = glGetUniformLocation(m_skyboxProgram, "skybox");
     m_transformMatrixLocation = glGetUniformLocation(m_skyboxProgram, "transform");
+    m_skyboxProgramEyeLocation = glGetUniformLocation(m_skyboxProgram, "eye");
     
-    m_cubemapLocation  = glGetUniformLocation(m_modelProgram, "cubemap");
     m_modelProgramModelLocation = glGetUniformLocation(m_modelProgram, "model");
     m_modelProgramViewProjectionLocation = glGetUniformLocation(m_modelProgram, "viewProjection");
     m_modelProgramEyeLocation = glGetUniformLocation(m_modelProgram, "eye");
@@ -427,7 +427,7 @@ void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 ey
     glUseProgram(m_skyboxProgram);
 
     glUniformMatrix4fv(m_transformMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glUniform3f(m_modelProgramEyeLocation, eye.x, eye.x, eye.z);
+    glUniform3f(m_skyboxProgramEyeLocation, eye.x, eye.y, eye.z);
 
     glBindVertexArray(m_skyboxVAO);
 

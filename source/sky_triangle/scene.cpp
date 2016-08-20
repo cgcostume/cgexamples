@@ -96,7 +96,8 @@ void Scene::render(float speed)
         m_direction = glm::vec3(sin(glm::radians(m_angle)), 0.f, cos(glm::radians(m_angle)));
         break;
     case 1:
-        m_eye = glm::vec3(sin(glm::radians(m_angle)) * 10.f, 0.0f, cos(glm::radians(m_angle)) * 10.f);
+        m_eye = glm::vec3(sin(glm::radians(180.f + m_angle)) * 10.f, 0.0f, cos(glm::radians(180.f + m_angle)) * 10.f);
+            //add 180 degress to the angle to look in the same direction as in centered mode
         m_direction = -m_eye;
         modelMatrix = glm::rotate(glm::mat4(1.f),  m_angle, glm::vec3(0.0f, 1.0f, 0.0f));
         break;

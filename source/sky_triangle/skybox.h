@@ -57,7 +57,7 @@ protected:
     // Uniforms
 
     gl::GLint m_skyboxLocation;
-    gl::GLint m_cubemapLocation;
+    gl::GLint m_skyboxProgramEyeLocation;
     gl::GLint m_modelProgramModelLocation;
     gl::GLint m_modelProgramViewProjectionLocation;
     gl::GLint m_modelProgramEyeLocation;
