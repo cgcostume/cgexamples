@@ -16,8 +16,7 @@ public:
     ~CubeScape();
 
     void initialize();
-    void resize(int width, int height);
-    void draw();
+    void draw(glm::tmat4x4<float, glm::highp> viewProjection);
 
     void setNumCubes(int numCubes);
     int numCubes() const;
@@ -38,9 +37,6 @@ protected:
     
     float m_a;
     int m_numcubes;
-
-    glm::tmat4x4<float, glm::highp> m_view;
-    glm::tmat4x4<float, glm::highp> m_projection;
 
     using clock = std::chrono::system_clock;
     clock::time_point m_time;

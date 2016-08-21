@@ -213,10 +213,6 @@ void CubeScape::initialize()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_textures[1]);
     glUniform1i(patches, 1);
-    
-    // view
-    
-    m_view = glm::lookAt(glm::vec3(0.f, 0.8f,-2.0f), glm::vec3(0.f, -1.2f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 }
 
 void CubeScape::setNumCubes(int _numCubes)
@@ -228,28 +224,24 @@ int CubeScape::numCubes() const
     return m_numcubes;
 }
 
-void CubeScape::resize(int width, int height)
+void CubeScape::draw(glm::tmat4x4<float, glm::highp> viewProjection)
 {
-    m_projection = glm::perspective(40.f, static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 1.f, 20.f);
-
-    //glViewport(0, 0, width, height);
-}
-
-void CubeScape::draw()
-{
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
     
 
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_time);
     float t = static_cast<float>(ms.count()) * 1e-3f;
-
-    const auto transform = m_projection * m_view * glm::rotate(glm::scale(glm::mat4(1.f),glm::vec3(0.5f)), t * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
     
-    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(transform[0]));
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f))));
     glUniform1f(u_time, t);
     glUniform1i(u_numcubes, m_numcubes);
 
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
+    
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(0.f, 5.f, 0.f))));
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
+    
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 5.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
 }

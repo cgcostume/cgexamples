@@ -43,9 +43,6 @@ set(sources
     CubeScape.h
     ${data}/skybox.vert
     ${data}/skybox.frag
-    ${data}/skybox_model.vert
-    ${data}/skybox_model.geom
-    ${data}/skybox_model.frag
     ${data}/cubescape.vert
     ${data}/cubescape.geom
     ${data}/cubescape.frag

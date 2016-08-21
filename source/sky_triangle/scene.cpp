@@ -41,8 +41,6 @@ void Scene::resize(int w, int h)
     m_width = w;
     m_height = h;
     m_padding = m_width / 1000.f;
-    
-    model.resize(w, h);
 }
 
 void Scene::changeDrawMode()
@@ -111,12 +109,12 @@ void Scene::render(float speed)
     switch (m_drawMode)
     {
     case static_cast<int>(DrawMode::Skytriangle) :
-        //example1.render(viewProjection, modelMatrix, m_eye);
-        model.draw();
+        example1.render(viewProjection, modelMatrix, m_eye);
+        model.draw(viewProjection);
         break;
     case static_cast<int>(DrawMode::Cubemap) :
         example2.render(viewProjection, m_eye);
-        model.draw();
+        model.draw(viewProjection);
         break;
     case static_cast<int>(DrawMode::Both) :
         gl::glScissor(0, 0, m_width / 2 - m_padding, m_height);
@@ -127,7 +125,7 @@ void Scene::render(float speed)
         example2.render(viewProjection, m_eye);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
-        model.draw();
+        model.draw(viewProjection);
         break;
     }
 }

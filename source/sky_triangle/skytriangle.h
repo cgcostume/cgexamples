@@ -18,7 +18,7 @@ public:
     bool loadShaders();
     bool loadTextures();
 
-    void render(glm::tmat4x4<float> viewProjection, glm::vec3 eye);
+    void render(glm::tmat4x4<float> viewProjection, glm::tmat4x4<float> model, glm::vec3 eye);
     void execute();
 
 protected:
