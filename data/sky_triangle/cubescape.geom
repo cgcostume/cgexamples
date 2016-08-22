@@ -1,9 +1,8 @@
 #version 150 core
 
 uniform mat4 modelViewProjection;
-const int numcubes = 1;
+uniform int numcubes;
 
-in  float v_h[3];
 out float g_h;
 
 out vec2 g_uv;
@@ -24,7 +23,7 @@ void main()
 	gl_Position = modelViewProjection * gl_in[0].gl_Position;
 	g_uv = vec2(0.0, 0.0);
 	g_normal = n;
-	g_h = v_h[0];
+	g_h = 1;
 	EmitVertex();
 
 	gl_Position = modelViewProjection * gl_in[1].gl_Position;

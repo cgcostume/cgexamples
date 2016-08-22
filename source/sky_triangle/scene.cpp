@@ -9,7 +9,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #pragma warning(pop)
 
-Scene::Scene()
+Scene::Scene():
+ m_drawMode(0)
+,m_drawModeChanged(true)
+,m_cameraMode(0)
+,m_cameraModeChanged(true)
+,m_rotate(false)
+,m_angle(0.f)
+,m_eye()
+,m_direction()
+,m_up(0.0f, 1.0f, 0.0f)
 {
 }
 
@@ -41,6 +50,9 @@ void Scene::resize(int w, int h)
     m_width = w;
     m_height = h;
     m_padding = m_width / 1000.f;
+    
+    // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
+    gl::glViewport(0, 0, m_width, m_height);
 }
 
 void Scene::changeDrawMode()
@@ -61,11 +73,18 @@ void Scene::toggleRotation()
 
 void Scene::render(float speed)
 {
-    // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
-    gl::glViewport(0, 0, m_width, m_height);
 
     // clear offscreen-framebuffer color attachment (no depth attachment configured and thus omitting GL_DEPTH_BUFFER_BIT)
     gl::glClear(gl::GL_COLOR_BUFFER_BIT | gl::GL_DEPTH_BUFFER_BIT);
+    
+    if(m_cameraModeChanged){
+        m_cameraModeChanged = false;
+        static const auto cameraModes = std::array<std::string, 2>{
+            "(I) centered: ",
+            "(II) orbit: "};
+        std::cout << cameraModes[m_cameraMode] << std::endl;
+        m_startTimePoint = std::chrono::high_resolution_clock::now();
+    }
 
     if (m_drawModeChanged)
     {
@@ -110,11 +129,11 @@ void Scene::render(float speed)
     {
     case static_cast<int>(DrawMode::Skytriangle) :
         example1.render(viewProjection, modelMatrix, m_eye);
-        model.draw(viewProjection);
+        model.render(viewProjection);
         break;
     case static_cast<int>(DrawMode::Cubemap) :
         example2.render(viewProjection, m_eye);
-        model.draw(viewProjection);
+        model.render(viewProjection);
         break;
     case static_cast<int>(DrawMode::Both) :
         gl::glScissor(0, 0, m_width / 2 - m_padding, m_height);
@@ -125,7 +144,7 @@ void Scene::render(float speed)
         example2.render(viewProjection, m_eye);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
-        model.draw(viewProjection);
+        model.render(viewProjection);
         break;
     }
 }

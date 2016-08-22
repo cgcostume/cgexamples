@@ -39,8 +39,8 @@ set(sources
     skytriangle.h
     skybox.cpp
     skybox.h
-    CubeScape.cpp
-    CubeScape.h
+    cube.cpp
+    cube.h
     ${data}/skybox.vert
     ${data}/skybox.frag
     ${data}/cubescape.vert

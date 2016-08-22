@@ -1,12 +1,13 @@
-#include "skybox.h"
-#include "skytriangle.h"
-#include "CubeScape.h"
+#pragma once
 
 #include <chrono>
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
 #include <glm/detail/type_vec3.hpp>
 
+#include "skybox.h"
+#include "skytriangle.h"
+#include "cube.h"
 
 
 // For more information on how to write C++ please adhere to: 
@@ -35,19 +36,20 @@ protected:
 
     SkyTriangle example1;
     Skybox example2;
-    CubeScape model;
+    Cube model;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimePoint;
 
     enum class DrawMode { Skytriangle, Cubemap, Both };
-    int m_drawMode = 0;
-    bool m_drawModeChanged = true;
+    int m_drawMode;
+    bool m_drawModeChanged;
     enum class CameraMode { Centered, Orbit };
-    int m_cameraMode = 0;
+    int m_cameraMode;
+    bool m_cameraModeChanged;
     bool m_rotate;
-    float m_angle = 0.f;
+    float m_angle;
 
     glm::vec3 m_eye;
     glm::vec3 m_direction;
-    glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 m_up;
 };

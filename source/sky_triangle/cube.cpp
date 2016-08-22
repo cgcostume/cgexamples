@@ -1,24 +1,13 @@
 
-#include "CubeScape.h"
+#include "cube.h"
 
-#include <iostream>
-#include <algorithm>
 #include <fstream>
-#include <cmath>
 
-//#include <cpplocate/cpplocate.h>
-//#include <cpplocate/ModuleInfo.h>
-
-#include <glbinding/gl/gl.h>
-
-#include <cgutils/common.h>
-
-#include <glm/geometric.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
-#include <glm/detail/type_vec3.hpp>
+
+#include <cgutils/common.h>
 
 using namespace gl;
 
@@ -62,10 +51,9 @@ std::string readFile(const std::string & filePath)
 
 }
 
-CubeScape::CubeScape()
+Cube::Cube()
 : a_vertex(-1)
 , u_transform(-1)
-, u_time(-1)
 , u_numcubes(-1)
 , m_vao(0)
 , m_indices(0)
@@ -77,7 +65,7 @@ CubeScape::CubeScape()
     
 }
 
-CubeScape::~CubeScape()
+Cube::~Cube()
 {
     glDeleteBuffers(1, &m_vertices);
     glDeleteBuffers(1, &m_indices);
@@ -85,7 +73,7 @@ CubeScape::~CubeScape()
     glDeleteProgram(m_program);
 }
 
-void CubeScape::initialize()
+void Cube::initialize()
 {
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
     GLuint gs = glCreateShader(GL_GEOMETRY_SHADER);
@@ -102,18 +90,15 @@ void CubeScape::initialize()
     glShaderSource(vs, 1, &vertSource, nullptr);
     glCompileShader(vs);
     bool success = cgutils::checkForCompilationError(vs, "model vertex shader");
-    //compile_info(vs);
     
     glShaderSource(gs, 1, &geomSource, nullptr);
     glCompileShader(gs);
     success &= cgutils::checkForCompilationError(gs, "model geometry shader");
-    //compile_info(gs);
     
     
     glShaderSource(fs, 1, &fragSource, nullptr);
     glCompileShader(fs);
     success &= cgutils::checkForCompilationError(fs, "model fragment shader");
-    //compile_info(fs);
     
     m_program = glCreateProgram();
     
@@ -123,26 +108,12 @@ void CubeScape::initialize()
     
     glLinkProgram(m_program);
     success &= cgutils::checkForLinkerError(m_program, "model program");
-    //link_info(m_program);
     
     // create textures
     
-    glGenTextures(2, m_textures);
+    glGenTextures(3, m_textures);
     
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    {
-        auto terrain = cgutils::rawFromFile("data/sky_triangle/terrain.64.64.r.ub.raw");
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 64, 64, 0, GL_RED, GL_UNSIGNED_BYTE, terrain.data());
-    }
-    
-    glBindTexture(GL_TEXTURE_2D, m_textures[1]);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -192,12 +163,8 @@ void CubeScape::initialize()
     glVertexAttribPointer(static_cast<GLuint>(a_vertex), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     
     u_transform = glGetUniformLocation(m_program, "modelViewProjection");
-    u_time = glGetUniformLocation(m_program, "time");
     u_numcubes = glGetUniformLocation(m_program, "numcubes");
     
-    m_time = clock::now();
-    
-    GLint terrain = glGetUniformLocation(m_program, "terrain");
     GLint patches = glGetUniformLocation(m_program, "patches");
     
     // since only single program and single data is used, bind only once
@@ -206,35 +173,27 @@ void CubeScape::initialize()
     
     glUseProgram(m_program);
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_textures[0]);
-    glUniform1i(terrain, 0);
-    
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_textures[1]);
+    glBindTexture(GL_TEXTURE_2D, m_textures[0]);
     glUniform1i(patches, 1);
 }
 
-void CubeScape::setNumCubes(int _numCubes)
+void Cube::setNumCubes(int _numCubes)
 {
     m_numcubes = std::min(4096, std::max(1, _numCubes));
 }
-int CubeScape::numCubes() const
+int Cube::numCubes() const
 {
     return m_numcubes;
 }
 
-void CubeScape::draw(glm::tmat4x4<float, glm::highp> viewProjection)
+void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 {
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
     
-
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_time);
-    float t = static_cast<float>(ms.count()) * 1e-3f;
     
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f))));
-    glUniform1f(u_time, t);
     glUniform1i(u_numcubes, m_numcubes);
 
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);

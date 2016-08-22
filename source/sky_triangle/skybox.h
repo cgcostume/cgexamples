@@ -1,9 +1,8 @@
-
-
-#include <glm/vec2.hpp>
+#pragma once
 
 #include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
 
+#include <glm/vec2.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 
