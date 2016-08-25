@@ -123,8 +123,7 @@ void SkyTriangle::loadUniformLocations()
     m_uniformLocations[0] = glGetUniformLocation(m_programs[0], "cubemap");
     
     m_uniformLocations[1] = glGetUniformLocation(m_programs[0], "inverseViewProjection");
-    m_uniformLocations[2] = glGetUniformLocation(m_programs[0], "model");
-    m_uniformLocations[3] = glGetUniformLocation(m_programs[0], "eye");
+    m_uniformLocations[2] = glGetUniformLocation(m_programs[0], "eye");
 
     glUseProgram(0);
 }
@@ -160,7 +159,7 @@ bool SkyTriangle::loadTextures()
     return true;
 }
 
-void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::tmat4x4<float> model, glm::vec3 eye)
+void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::vec3 eye)
 {
 
     glActiveTexture(GL_TEXTURE0);
@@ -172,8 +171,7 @@ void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::tmat4x4<float>
     const auto inverseViewProjection = glm::inverse(viewProjection);
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));
-    glUniformMatrix4fv(m_uniformLocations[2], 1, GL_FALSE, glm::value_ptr(model));
-    glUniform3f(m_uniformLocations[3], eye.x, eye.y, eye.z);
+    glUniform3f(m_uniformLocations[2], eye.x, eye.y, eye.z);
 
     // draw
 

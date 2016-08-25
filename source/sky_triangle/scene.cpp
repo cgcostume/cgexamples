@@ -125,7 +125,6 @@ void Scene::render(float speed)
     case 1:
         m_eye = glm::vec3(sin(glm::radians(m_angle + 180.f)) * m_radius, 0.0f, cos(glm::radians(m_angle + 180.f)) * m_radius); //add 180 degress to the angle to look in the same direction as in centered mode
         m_direction = -m_eye;
-        modelMatrix = glm::rotate(glm::mat4(1.f),  m_angle, glm::vec3(0.0f, 1.0f, 0.0f));
         break;
     }
 
@@ -138,7 +137,7 @@ void Scene::render(float speed)
     switch (m_drawMode)
     {
     case static_cast<int>(DrawMode::Skytriangle) :
-        example1.render(viewProjection, modelMatrix, m_eye);
+        example1.render(viewProjection, m_eye);
         model.render(viewProjection);
         break;
     case static_cast<int>(DrawMode::Cubemap) :
@@ -148,7 +147,7 @@ void Scene::render(float speed)
     case static_cast<int>(DrawMode::Both) :
         gl::glScissor(0, 0, m_width / 2 - m_median, m_height);
         glEnable(gl::GLenum::GL_SCISSOR_TEST);
-        example1.render(viewProjection, modelMatrix, m_eye);
+        example1.render(viewProjection, m_eye);
         model.render(viewProjection);
 
         gl::glScissor(m_width / 2 + m_median, 0, m_width / 2 - m_median, m_height);

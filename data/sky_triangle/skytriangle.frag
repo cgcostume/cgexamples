@@ -10,7 +10,7 @@ out vec4 out_color;
 
 void main()
 {
-	vec3 stu = normalize(v_ray.xyz); // -eye?
+	vec3 stu = normalize(v_ray.xyz - eye);
 
 	out_color = vec4(texture(cubemap, stu).rgb, 1.0);
 }
