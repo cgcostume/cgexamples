@@ -169,7 +169,6 @@ void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::tmat4x4<float>
     glUseProgram(m_programs[0]);
     glUniform1f(m_uniformLocations[0], 0);
     
-    //const auto inverseViewProjection = glm::inverse(projection * glm::rotate(view, -m_angle, glm::vec3(0.f, 1.f, 0.f))); // rotation in scene
     const auto inverseViewProjection = glm::inverse(viewProjection);
 
     glUniformMatrix4fv(m_uniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));

@@ -1,12 +1,8 @@
 #pragma once
 
-#include <chrono>
-
 #include <glbinding/gl/types.h>
 
 #include <glm/gtc/matrix_transform.hpp>
-
-//#include "glutils.h"
 
 
 class Cube

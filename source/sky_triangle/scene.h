@@ -26,13 +26,14 @@ public:
     void changeDrawMode();
     void changeCameraMode();
     void toggleRotation();
+    void changeRadiusBy(float value);
     void render(float speed);
 
 protected:
 
     int m_width;
     int m_height;
-    float m_padding;
+    float m_median;
 
     SkyTriangle example1;
     Skybox example2;
@@ -48,6 +49,7 @@ protected:
     bool m_cameraModeChanged;
     bool m_rotate;
     float m_angle;
+    float m_radius;
 
     glm::vec3 m_eye;
     glm::vec3 m_direction;

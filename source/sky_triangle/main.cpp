@@ -93,6 +93,12 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
     case GLFW_KEY_C:
         scene.changeCameraMode();
         break;
+    case GLFW_KEY_DOWN:
+        scene.changeRadiusBy(1.f);
+        break;
+    case GLFW_KEY_UP:
+        scene.changeRadiusBy(-1.f);
+        break;
     }
 }
 
@@ -156,6 +162,8 @@ int main(int /*argc*/, char ** /*argv*/)
         << "  [v] switch draw mode" << std::endl
         << "  [c] switch camera mode" << std::endl
         << "  [r] toggle rotation" << std::endl
+        << "  [ARROW_UP] decrease radius" << std::endl
+        << "  [ARROW_DOWN] increase radius" << std::endl
         << std::endl;
 
     glfwMakeContextCurrent(window);
@@ -168,10 +176,6 @@ int main(int /*argc*/, char ** /*argv*/)
     while (!glfwWindowShouldClose(window)) // main loop
     {
         glfwPollEvents();
-
-        const auto now = std::chrono::high_resolution_clock::now();
-        //auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - startTimePoint).count());
-        //time *= 0.001f; // time is now in seconds
 
         cursor.updateDragSpeed(window);
 

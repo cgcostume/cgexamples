@@ -69,7 +69,6 @@ Cube::~Cube()
 {
     glDeleteBuffers(1, &m_vertices);
     glDeleteBuffers(1, &m_indices);
-
     glDeleteProgram(m_program);
 }
 
@@ -167,7 +166,6 @@ void Cube::initialize()
     
     GLint patches = glGetUniformLocation(m_program, "patches");
     
-    // since only single program and single data is used, bind only once
     
     glEnable(GL_DEPTH_TEST);
     
@@ -191,7 +189,6 @@ void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 {
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
-    
     
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f))));
     glUniform1i(u_numcubes, m_numcubes);
