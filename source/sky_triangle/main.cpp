@@ -115,6 +115,10 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    scene.changeRadiusBy(-yoffset);
+}
 
 // "In case a GLFW function fails, an error is reported to the GLFW 
 // error callback. You can receive these reports with an error
@@ -154,6 +158,7 @@ int main(int /*argc*/, char ** /*argv*/)
     glfwSetWindowSizeCallback(window, resizeCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     std::cout << "Sky Triangle (no Skybox)" << std::endl << std::endl;
 
@@ -162,8 +167,8 @@ int main(int /*argc*/, char ** /*argv*/)
         << "  [v] switch draw mode" << std::endl
         << "  [c] switch camera mode" << std::endl
         << "  [r] toggle rotation" << std::endl
-        << "  [ARROW_UP] decrease radius" << std::endl
-        << "  [ARROW_DOWN] increase radius" << std::endl
+        << "  [arrow up / scroll up] decrease radius" << std::endl
+        << "  [arrow down / scroll down] increase radius" << std::endl
         << std::endl;
 
     glfwMakeContextCurrent(window);
