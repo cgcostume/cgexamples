@@ -189,15 +189,17 @@ void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 {
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
+
+    auto modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
     
-    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f))));
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(10.f, 0.f, 0.f))));
     glUniform1i(u_numcubes, m_numcubes);
 
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
     
-    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(0.f, 5.f, 0.f))));
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 10.f, 0.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
     
-    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 5.f))));
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 0.f, 10.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
 }

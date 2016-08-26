@@ -17,6 +17,8 @@ Scene::Scene()
 , m_rotate(false)
 , m_angle(0.f)
 , m_radius(10.f)
+, m_nearPlane(1.f)
+, m_farPlane(50.f)
 , m_eye()
 , m_direction()
 , m_up(0.0f, 1.0f, 0.0f)
@@ -75,7 +77,10 @@ void Scene::toggleRotation()
 
 void Scene::changeRadiusBy(float value)
 {
-    m_radius = std::max(m_radius + value, 0.001f);
+    if(m_cameraMode == 1)
+    {
+        m_radius = std::min(m_farPlane, std::max(m_radius + value, 0.001f));
+    }
 }
 
 void Scene::render(float speed)
@@ -130,7 +135,7 @@ void Scene::render(float speed)
 
     // create transformation
     const auto view = glm::lookAt(m_eye, m_direction, m_up);
-    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, 1.f, 20.f);
+    const auto projection = glm::perspective(glm::radians(80.f), static_cast<float>(m_width) / m_height, m_nearPlane, m_farPlane);
     const auto viewProjection = projection * view;
 
     // draw

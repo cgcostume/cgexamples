@@ -24,7 +24,7 @@ struct Cursor
     bool lMouseButtonDown = false;
     glm::dvec2 position;
     glm::vec2 speed;
-    const glm::vec2 minSpeed = glm::vec2(0.5f);
+    const glm::vec2 minSpeed = glm::vec2(0.4f);
     glm::vec2 dragStartSpeed;
     std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
 

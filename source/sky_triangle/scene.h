@@ -51,6 +51,9 @@ protected:
     float m_angle;
     float m_radius;
 
+    float m_nearPlane;
+    float m_farPlane;
+
     glm::vec3 m_eye;
     glm::vec3 m_direction;
     glm::vec3 m_up;
