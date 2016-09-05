@@ -14,53 +14,16 @@ using namespace gl;
 namespace
 {
 
-// taken from iozeug::FilePath::toPath
-std::string normalizePath(const std::string & filepath)
-{
-    auto copy = filepath;
-    std::replace( copy.begin(), copy.end(), '\\', '/');
-    auto i = copy.find_last_of('/');
-    if (i == copy.size()-1)
-    {
-        copy = copy.substr(0, copy.size()-1);
-    }
-    return copy;
-}
-
-bool readFile(const std::string & filePath, std::string & content)
-{
-    // http://insanecoding.blogspot.de/2011/11/how-to-read-in-file-in-c.html
-
-    std::ifstream in(filePath, std::ios::in | std::ios::binary);
-
-    if (!in)
-        return false;
-
-    content = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-    return true;
-}
-
-// convenience
-std::string readFile(const std::string & filePath)
-{
-    std::string content;
-    readFile(filePath, content);
-
-    return content;
-}
-
 }
 
 Cube::Cube()
 : a_vertex(-1)
 , u_transform(-1)
-, u_numcubes(-1)
 , m_vao(0)
 , m_indices(0)
 , m_vertices(0)
 , m_program(0)
 , m_a(0.f)
-, m_numcubes(16)
 , m_texturePaths{"patches.64.16.rgb.ub.raw", "patches.64.16.rgb.ub.raw", "patches.64.16.rgb.ub.raw"}
 {
 }
@@ -78,9 +41,9 @@ void Cube::initialize()
     GLuint gs = glCreateShader(GL_GEOMETRY_SHADER);
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
     
-    std::string vertexSource   = readFile("data/sky_triangle/cubescape.vert");
-    std::string geometrySource = readFile("data/sky_triangle/cubescape.geom");
-    std::string fragmentSource = readFile("data/sky_triangle/cubescape.frag");
+    std::string vertexSource   = cgutils::textFromFile("data/sky_triangle/cube.vert");
+    std::string geometrySource = cgutils::textFromFile("data/sky_triangle/cube.geom");
+    std::string fragmentSource = cgutils::textFromFile("data/sky_triangle/cube.frag");
     
     const char * vertSource = vertexSource.c_str();
     const char * geomSource = geometrySource.c_str();
@@ -169,7 +132,6 @@ void Cube::initialize()
     glVertexAttribPointer(static_cast<GLuint>(a_vertex), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     
     u_transform = glGetUniformLocation(m_program, "modelViewProjection");
-    u_numcubes = glGetUniformLocation(m_program, "numcubes");
     
     GLint patches = glGetUniformLocation(m_program, "patches");
     
@@ -183,15 +145,6 @@ void Cube::initialize()
     glUniform1i(patches, 1);
 }
 
-void Cube::setNumCubes(int _numCubes)
-{
-    m_numcubes = std::min(4096, std::max(1, _numCubes));
-}
-int Cube::numCubes() const
-{
-    return m_numcubes;
-}
-
 void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 {
     glUseProgram(m_program);
@@ -199,17 +152,16 @@ void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 
     auto modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
     
-    glUniform1i(u_numcubes, m_numcubes);
     
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(10.f, 0.f, 0.f))));
-    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, 1);
     
     glBindTexture(GL_TEXTURE_2D, m_textures[1]);
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 10.f, 0.f))));
-    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, 1);
     
     glBindTexture(GL_TEXTURE_2D, m_textures[2]);
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 0.f, 10.f))));
-    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, 1);
 }

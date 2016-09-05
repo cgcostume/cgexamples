@@ -101,10 +101,6 @@ void Skybox::initialize()
     // enable previously configured vertex shader input
     glEnableVertexAttribArray(0);
 
-    // enable previously configured vertex shader input
-    glEnableVertexAttribArray(0);
-    //glEnableVertexAttribArray(1);
-
     // create a texture 
     glGenTextures(1, &m_skyboxTexture);
 

@@ -43,9 +43,9 @@ set(sources
     cube.h
     ${data}/skybox.vert
     ${data}/skybox.frag
-    ${data}/cubescape.vert
-    ${data}/cubescape.geom
-    ${data}/cubescape.frag
+    ${data}/cube.vert
+    ${data}/cube.geom
+    ${data}/cube.frag
     ${data}/skytriangle.frag
     ${data}/skytriangle.vert
 )

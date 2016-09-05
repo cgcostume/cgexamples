@@ -31,15 +31,12 @@ Scene::~Scene()
 
 void Scene::initialize()
 {
-    m_startTimePoint = std::chrono::high_resolution_clock::now();
-
     // set color used when clearing the frame buffer
     gl::glClearColor(0.12f, 0.14f, 0.18f, 1.0f);
 
     example1.initialize();
     example2.initialize();
     model.initialize();
-    model.setNumCubes(1);
 }
 
 void Scene::loadShaders()
@@ -92,27 +89,20 @@ void Scene::render(float speed)
     if(m_cameraModeChanged){
         m_cameraModeChanged = false;
         static const auto cameraModes = std::array<std::string, 2>{
-            "(I) centered: ",
-            "(II) orbit: "};
+            "(I) centered ",
+            "(II) orbit "};
         std::cout << "camera: " << cameraModes[m_cameraMode] << std::endl;
-        m_startTimePoint = std::chrono::high_resolution_clock::now();
     }
 
     if (m_drawModeChanged)
     {
         m_drawModeChanged = false;
         static const auto drawModes = std::array<std::string, 3>{
-                "(0) rendering screen aligned triangle: ",
-                "(1) rendering with cubemap: ",
-                "(2) both combined. left screen aligned triangle, right cubemap: "};
+                "(0) rendering screen aligned triangle ",
+                "(1) rendering with cubemap ",
+                "(2) left: screen aligned triangle, right: cubemap "};
         std::cout << "    environment: " << drawModes[static_cast<int>(m_drawMode)] << std::endl;
-        m_startTimePoint = std::chrono::high_resolution_clock::now();
     }
-
-    //using msecs = std::chrono::milliseconds;
-    //const auto now = std::chrono::high_resolution_clock::now();
-    //auto time = static_cast<float>(std::chrono::duration_cast<msecs>(now - m_startTimePoint).count());
-    //time *= 0.001f; // time is now in seconds
 
     // update angle
     if (m_rotate)
