@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <glbinding/gl/types.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,4 +35,5 @@ protected:
     
     float m_a;
     int m_numcubes;
+    std::vector<std::string> m_texturePaths;
 };

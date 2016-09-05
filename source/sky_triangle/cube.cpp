@@ -61,8 +61,8 @@ Cube::Cube()
 , m_program(0)
 , m_a(0.f)
 , m_numcubes(16)
+, m_texturePaths{"patches.64.16.rgb.ub.raw", "patches.64.16.rgb.ub.raw", "patches.64.16.rgb.ub.raw"}
 {
-    
 }
 
 Cube::~Cube()
@@ -112,17 +112,24 @@ void Cube::initialize()
     
     glGenTextures(3, m_textures);
     
-    glBindTexture(GL_TEXTURE_2D, m_textures[0]);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    
+    std::string dataPath = "data/sky_triangle/";
+    for (int i = 0; i < 3; ++i)
     {
-        auto patches = cgutils::rawFromFile("data/sky_triangle/patches.64.16.rgb.ub.raw");
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 64, 16, 0, GL_RGB, GL_UNSIGNED_BYTE, patches.data());
+        glBindTexture(GL_TEXTURE_2D, m_textures[i]);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        
+        
+        std::string texturePath = dataPath + m_texturePaths[i];
+        {
+            auto texture = cgutils::rawFromFile(texturePath.c_str());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 64, 16, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.data()); // TODO: adapt to incoming texture
+        }
+
     }
     
     
@@ -192,14 +199,17 @@ void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
 
     auto modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
     
-    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(10.f, 0.f, 0.f))));
     glUniform1i(u_numcubes, m_numcubes);
-
+    
+    glBindTexture(GL_TEXTURE_2D, m_textures[0]);
+    glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(10.f, 0.f, 0.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
     
+    glBindTexture(GL_TEXTURE_2D, m_textures[1]);
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 10.f, 0.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
     
+    glBindTexture(GL_TEXTURE_2D, m_textures[2]);
     glUniformMatrix4fv(u_transform, 1, GL_FALSE, glm::value_ptr(viewProjection * glm::translate(modelMatrix, glm::vec3(0.f, 0.f, 10.f))));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, 0, m_numcubes * m_numcubes);
 }
