@@ -15,6 +15,7 @@ Scene::Scene()
 , m_cameraMode(0)
 , m_cameraModeChanged(true)
 , m_rotate(false)
+, m_showSplitLine(true)
 , m_angle(0.f)
 , m_radius(10.f)
 , m_nearPlane(1.f)
@@ -50,7 +51,7 @@ void Scene::resize(int w, int h)
 {
     m_width = w;
     m_height = h;
-    m_median = m_width / 1000.f;
+    m_median = m_showSplitLine ? m_width / 1000.f : 0.f;
     
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     gl::glViewport(0, 0, m_width, m_height);
@@ -71,6 +72,12 @@ void Scene::changeCameraMode()
 void Scene::toggleRotation()
 {
     m_rotate = !m_rotate;
+}
+
+void Scene::toggleLine()
+{
+    m_showSplitLine = !m_showSplitLine;
+    m_median = m_showSplitLine ? m_width/1000.f : 0.f;
 }
 
 void Scene::changeRadiusBy(float value)

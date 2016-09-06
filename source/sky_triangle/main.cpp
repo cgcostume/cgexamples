@@ -54,6 +54,9 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
     case GLFW_KEY_R:
         scene.toggleRotation();
         break;
+    case GLFW_KEY_L:
+        scene.toggleLine();
+        break;
     case GLFW_KEY_C:
         scene.changeCameraMode();
         break;
@@ -134,6 +137,7 @@ int main(int /*argc*/, char ** /*argv*/)
         << "  [v] switch draw mode" << std::endl
         << "  [c] switch camera mode" << std::endl
         << "  [r] toggle rotation" << std::endl
+        << "  [l] toggle split line" << std::endl
         << "  [arrow up / scroll up] decrease radius" << std::endl
         << "  [arrow down / scroll down] increase radius" << std::endl
         << std::endl;

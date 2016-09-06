@@ -25,6 +25,7 @@ public:
     void changeDrawMode();
     void changeCameraMode();
     void toggleRotation();
+    void toggleLine();
     void changeRadiusBy(float value);
     void render(float speed);
 
@@ -33,6 +34,7 @@ protected:
     int m_width;
     int m_height;
     float m_median;
+    bool m_showSplitLine;
 
     SkyTriangle example1;
     Skybox example2;
