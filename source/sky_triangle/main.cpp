@@ -1,5 +1,6 @@
 
 #include "scene.h"
+#include "cursor.h"
 
 #include <iostream>
 
@@ -18,46 +19,9 @@
 // unit, and have internal linkage."
 namespace
 {
-using msecs = std::chrono::milliseconds;
-struct Cursor
-{
-    bool lMouseButtonDown = false;
-    glm::dvec2 position;
-    glm::vec2 speed;
-    const glm::vec2 minSpeed = glm::vec2(0.4f);
-    glm::vec2 dragStartSpeed;
-    std::chrono::time_point<std::chrono::high_resolution_clock> dragStart = std::chrono::high_resolution_clock::now();
 
-    void updateDragSpeed(GLFWwindow* window)
-    {
-        // Mouse dragging
-        if (lMouseButtonDown) {
-            glm::dvec2 currentCursorPos;
-            glfwGetCursorPos(window, &currentCursorPos.x, &currentCursorPos.y);
-            if (position != currentCursorPos)
-            {
-                speed = (currentCursorPos - position) * 0.2;
-                dragStartSpeed = speed;
-                dragStart = std::chrono::high_resolution_clock::now();
-                position = currentCursorPos;
-            }
-            else
-            {
-                speed = glm::vec2(0.0);
-            }
-        }
-        else
-        {
-            auto dragElapsed = static_cast<float>(std::chrono::duration_cast<msecs>(std::chrono::high_resolution_clock::now() - dragStart).count());
-            dragElapsed *= 0.001f; // time is now in seconds
 
-            auto decrease = dragStartSpeed / (1 + dragElapsed * dragElapsed * dragElapsed);
-            speed = (speed.x > 0.0) ? glm::max(minSpeed, decrease) : glm::min(-minSpeed, decrease);
-        }
-    }
-};
-
-Scene scene;    
+Scene scene;
 Cursor cursor;
 
 const auto canvasWidth = 1440; // in pixel
@@ -107,11 +71,14 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (GLFW_PRESS == action)
         {
-            cursor.lMouseButtonDown = true;
-            glfwGetCursorPos(window, &cursor.position.x, &cursor.position.y);
+            cursor.lMouseButtonDown();
+            glm::dvec2 position;
+            glfwGetCursorPos(window, &position.x, &position.y);
+            cursor.setPosition(position);
+            
         }
         else if (GLFW_RELEASE == action)
-            cursor.lMouseButtonDown = false;
+            cursor.lMouseButtonUp();
     }
 }
 
@@ -181,10 +148,12 @@ int main(int /*argc*/, char ** /*argv*/)
     while (!glfwWindowShouldClose(window)) // main loop
     {
         glfwPollEvents();
+        
+        glm::dvec2 currentCursorPos;
+        glfwGetCursorPos(window, &currentCursorPos.x, &currentCursorPos.y);
+        cursor.updateDragSpeed(currentCursorPos);
 
-        cursor.updateDragSpeed(window);
-
-        scene.render(cursor.speed.x);
+        scene.render(cursor.speed().x);
 
         glfwSwapBuffers(window);
     }

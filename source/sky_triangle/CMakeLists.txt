@@ -35,6 +35,8 @@ set(sources
 
     scene.cpp
     scene.h
+    cursor.cpp
+    cursor.h
     skytriangle.cpp
     skytriangle.h
     skybox.cpp
