@@ -37,39 +37,7 @@ Cube::~Cube()
 
 void Cube::initialize()
 {
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    GLuint gs = glCreateShader(GL_GEOMETRY_SHADER);
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    
-    std::string vertexSource   = cgutils::textFromFile("data/sky_triangle/cube.vert");
-    std::string geometrySource = cgutils::textFromFile("data/sky_triangle/cube.geom");
-    std::string fragmentSource = cgutils::textFromFile("data/sky_triangle/cube.frag");
-    
-    const char * vertSource = vertexSource.c_str();
-    const char * geomSource = geometrySource.c_str();
-    const char * fragSource = fragmentSource.c_str();
-    
-    glShaderSource(vs, 1, &vertSource, nullptr);
-    glCompileShader(vs);
-    bool success = cgutils::checkForCompilationError(vs, "model vertex shader");
-    
-    glShaderSource(gs, 1, &geomSource, nullptr);
-    glCompileShader(gs);
-    success &= cgutils::checkForCompilationError(gs, "model geometry shader");
-    
-    
-    glShaderSource(fs, 1, &fragSource, nullptr);
-    glCompileShader(fs);
-    success &= cgutils::checkForCompilationError(fs, "model fragment shader");
-    
-    m_program = glCreateProgram();
-    
-    glAttachShader(m_program, vs);
-    glAttachShader(m_program, gs);
-    glAttachShader(m_program, fs);
-    
-    glLinkProgram(m_program);
-    success &= cgutils::checkForLinkerError(m_program, "model program");
+    loadShaders();
     
     // create textures
     
@@ -143,6 +111,48 @@ void Cube::initialize()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);
     glUniform1i(patches, 1);
+}
+
+bool Cube::loadShaders()
+{
+    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+    GLuint gs = glCreateShader(GL_GEOMETRY_SHADER);
+    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    std::string vertexSource   = cgutils::textFromFile("data/sky_triangle/cube.vert");
+    std::string geometrySource = cgutils::textFromFile("data/sky_triangle/cube.geom");
+    std::string fragmentSource = cgutils::textFromFile("data/sky_triangle/cube.frag");
+    
+    const char * vertSource = vertexSource.c_str();
+    const char * geomSource = geometrySource.c_str();
+    const char * fragSource = fragmentSource.c_str();
+    
+    glShaderSource(vs, 1, &vertSource, nullptr);
+    glCompileShader(vs);
+    bool success = cgutils::checkForCompilationError(vs, "model vertex shader");
+    
+    glShaderSource(gs, 1, &geomSource, nullptr);
+    glCompileShader(gs);
+    success &= cgutils::checkForCompilationError(gs, "model geometry shader");
+    
+    
+    glShaderSource(fs, 1, &fragSource, nullptr);
+    glCompileShader(fs);
+    success &= cgutils::checkForCompilationError(fs, "model fragment shader");
+    
+    m_program = glCreateProgram();
+    
+    glAttachShader(m_program, vs);
+    glAttachShader(m_program, gs);
+    glAttachShader(m_program, fs);
+    
+    glLinkProgram(m_program);
+    success &= cgutils::checkForLinkerError(m_program, "model program");
+    
+    if (!success)
+        return false;
+    
+    return true;
 }
 
 void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)

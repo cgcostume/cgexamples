@@ -15,6 +15,7 @@ public:
     ~Cube();
 
     void initialize();
+    bool loadShaders();
     void render(glm::tmat4x4<float, glm::highp> viewProjection);
 
 protected:

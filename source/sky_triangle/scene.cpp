@@ -43,6 +43,7 @@ void Scene::loadShaders()
 {
     example1.loadShaders();
     example2.loadShaders();
+    model.loadShaders();
 }
 
 void Scene::resize(int w, int h)
