@@ -12,6 +12,8 @@
 
 #include <cgutils/common.h>
 
+#include <iostream>
+
 using namespace gl32core;
 
 
@@ -52,7 +54,7 @@ void SkyTriangle::initialize()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    for (auto i = 0; i < m_programs.size(); ++i)
+    for (auto i = 0; i < 2; ++i)
     {
         m_programs[i] = glCreateProgram();
 
@@ -79,9 +81,11 @@ void SkyTriangle::cleanup()
 
 bool SkyTriangle::loadShaders()
 {
-    static const auto sourceFiles = std::array<std::string, 2>{
+    static const auto sourceFiles = std::array<std::string, 4>{
         "data/sky_triangle/skytriangle.vert",
-        "data/sky_triangle/skytriangle.frag", };
+        "data/sky_triangle/skytriangle.frag",
+        "data/sky_triangle/difference.vert",
+        "data/sky_triangle/difference.frag"};
 
     {   static const auto i = 0;
 
@@ -111,6 +115,34 @@ bool SkyTriangle::loadShaders()
         if (!success)
             return false;
     }
+    {
+        
+        const auto vertexShaderSource = cgutils::textFromFile(sourceFiles[2].c_str());
+        const auto vertexShaderSource_ptr = vertexShaderSource.c_str();
+        if (vertexShaderSource_ptr)
+            glShaderSource(m_vertexShaders[1], 1, &vertexShaderSource_ptr, 0);
+        
+        glCompileShader(m_vertexShaders[1]);
+        bool success = cgutils::checkForCompilationError(m_vertexShaders[1], sourceFiles[2]);
+        
+        
+        const auto fragmentShaderSource = cgutils::textFromFile(sourceFiles[3].c_str());
+        const auto fragmentShaderSource_ptr = fragmentShaderSource.c_str();
+        if (fragmentShaderSource_ptr)
+            glShaderSource(m_fragmentShaders[1], 1, &fragmentShaderSource_ptr, 0);
+        
+        glCompileShader(m_fragmentShaders[1]);
+        success &= cgutils::checkForCompilationError(m_fragmentShaders[1], sourceFiles[3]);
+        
+        if (!success)
+            return false;
+        
+        gl::glLinkProgram(m_programs[1]);
+        
+        success &= cgutils::checkForLinkerError(m_programs[1], "skytriangle diff program");
+        if (!success)
+            return false;
+    }
 
     loadUniformLocations();
 
@@ -121,9 +153,17 @@ void SkyTriangle::loadUniformLocations()
 {
     glUseProgram(m_programs[0]);
     m_uniformLocations[0] = glGetUniformLocation(m_programs[0], "cubemap");
-    
+
     m_uniformLocations[1] = glGetUniformLocation(m_programs[0], "inverseViewProjection");
     m_uniformLocations[2] = glGetUniformLocation(m_programs[0], "eye");
+    
+    glUseProgram(m_programs[1]);
+    m_diffUniformLocations[0] = glGetUniformLocation(m_programs[1], "cubemap");
+    
+    m_diffUniformLocations[1] = glGetUniformLocation(m_programs[1], "inverseViewProjection");
+    m_diffUniformLocations[2] = glGetUniformLocation(m_programs[1], "eye");
+
+    m_diffUniformLocations[3] = glGetUniformLocation(m_programs[1], "cubeExampleTexture");
 
     glUseProgram(0);
 }
@@ -161,7 +201,6 @@ bool SkyTriangle::loadTextures()
 
 void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::vec3 eye)
 {
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);
 
@@ -178,7 +217,13 @@ void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::vec3 eye)
     glBindVertexArray(m_vaos[0]);
     
     glDepthMask(GL_FALSE);
+    
+    
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    // unbind FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
     glDepthMask(GL_TRUE);
     
     glBindVertexArray(0);
@@ -189,6 +234,51 @@ void SkyTriangle::render(glm::tmat4x4<float> viewProjection, glm::vec3 eye)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void SkyTriangle::renderDifference(glm::tmat4x4<float> viewProjection, glm::vec3 eye, gl::GLuint texture)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_textures[0]);
+    
+    glUseProgram(m_programs[1]);
+    glUniform1f(m_diffUniformLocations[0], 0);
+    
+    const auto inverseViewProjection = glm::inverse(viewProjection);
+    
+    glUniformMatrix4fv(m_diffUniformLocations[1], 1, GL_FALSE, glm::value_ptr(inverseViewProjection));
+    glUniform3f(m_diffUniformLocations[2], eye.x, eye.y, eye.z);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    
+    glUniform1i(m_diffUniformLocations[3], 1);
+    
+    // draw
+    
+    glBindVertexArray(m_vaos[0]);
+    
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    // unbind FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+    
+    glBindVertexArray(0);
+    
+    glUseProgram(0);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+}
 
 void SkyTriangle::execute()
 {

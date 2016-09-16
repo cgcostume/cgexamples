@@ -45,11 +45,14 @@ set(sources
     cube.h
     ${data}/skybox.vert
     ${data}/skybox.frag
+    ${data}/skyboxTex.frag
     ${data}/cube.vert
     ${data}/cube.geom
     ${data}/cube.frag
     ${data}/skytriangle.frag
     ${data}/skytriangle.vert
+    ${data}/difference.vert
+    ${data}/difference.frag
 )
 
 

@@ -108,9 +108,9 @@ void Cube::initialize()
     
     glUseProgram(m_program);
     
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);
-    glUniform1i(patches, 1);
+    glUniform1i(patches, 0);
 }
 
 bool Cube::loadShaders()
@@ -161,6 +161,8 @@ void Cube::render(glm::tmat4x4<float, glm::highp> viewProjection)
     glBindVertexArray(m_vao);
 
     auto modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
+    
+    glActiveTexture(GL_TEXTURE0);
     
     
     glBindTexture(GL_TEXTURE_2D, m_textures[0]);

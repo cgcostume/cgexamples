@@ -30,7 +30,7 @@ public:
     void render(float speed);
 
 protected:
-
+    
     int m_width;
     int m_height;
     float m_median;
@@ -40,7 +40,7 @@ protected:
     Skybox example2;
     Cube model;
 
-    enum class DrawMode { Skytriangle, Cubemap, Both };
+    enum class DrawMode { Skytriangle, Cubemap, Both, Difference };
     int m_drawMode;
     bool m_drawModeChanged;
     enum class CameraMode { Centered, Orbit };
@@ -56,4 +56,5 @@ protected:
     glm::vec3 m_eye;
     glm::vec3 m_direction;
     glm::vec3 m_up;
+    
 };

@@ -9,13 +9,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #pragma warning(pop)
 
+using namespace gl;
+
 Scene::Scene()
-: m_drawMode(0)
+: m_showSplitLine(true)
+, m_drawMode(0)
 , m_drawModeChanged(true)
 , m_cameraMode(0)
 , m_cameraModeChanged(true)
 , m_rotate(false)
-, m_showSplitLine(true)
 , m_angle(0.f)
 , m_radius(10.f)
 , m_nearPlane(1.f)
@@ -55,11 +57,13 @@ void Scene::resize(int w, int h)
     
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     gl::glViewport(0, 0, m_width, m_height);
+
+    example2.resize(w, h);
 }
 
 void Scene::changeDrawMode()
 {
-    m_drawMode = (++m_drawMode) % 3;
+    m_drawMode = (++m_drawMode) % 4;
     m_drawModeChanged = true;
 }
 
@@ -105,10 +109,11 @@ void Scene::render(float speed)
     if (m_drawModeChanged)
     {
         m_drawModeChanged = false;
-        static const auto drawModes = std::array<std::string, 3>{
+        static const auto drawModes = std::array<std::string, 4>{
                 "(0) rendering screen aligned triangle ",
                 "(1) rendering with cubemap ",
-                "(2) left: screen aligned triangle, right: cubemap "};
+                "(2) left: screen aligned triangle, right: cubemap ",
+                "(3) difference"};
         std::cout << "    environment: " << drawModes[static_cast<int>(m_drawMode)] << std::endl;
     }
 
@@ -158,6 +163,11 @@ void Scene::render(float speed)
         model.render(viewProjection);
 
         glDisable(gl::GLenum::GL_SCISSOR_TEST);
+        break;
+    case static_cast<int>(DrawMode::Difference):
+        auto tex = example2.renderToTexture(viewProjection, m_eye);
+            
+        example1.renderDifference(viewProjection, m_eye, tex);
         break;
     }
 }

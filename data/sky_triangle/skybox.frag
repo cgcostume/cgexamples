@@ -2,7 +2,6 @@
 #version 150 core
 
 uniform samplerCube background;
-uniform vec3 eye;
 
 in vec3 v_uv;
 

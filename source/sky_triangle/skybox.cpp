@@ -82,6 +82,19 @@ void Skybox::initialize()
     // attach shaders to program
     glAttachShader(m_skyboxProgram, m_skyboxVertexShader);
     glAttachShader(m_skyboxProgram, m_skyboxFragmentShader);
+    
+    // create a rendering program, holding vertex and fragment shader
+    m_outputProgram = glCreateProgram();
+    
+    // create a vertex shader
+    m_outputVertexShader = glCreateShader(GL_VERTEX_SHADER);
+    
+    // create a fragment shader
+    m_outputFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    // attach shaders to program
+    glAttachShader(m_outputProgram, m_outputVertexShader);
+    glAttachShader(m_outputProgram, m_outputFragmentShader);
 
     loadShaders();
 
@@ -108,11 +121,21 @@ void Skybox::initialize()
 
     // optional: bind the fragment shader output 0 to "out_color", which is 0 by default
     glBindFragDataLocation(m_skyboxProgram, 0, "out_color");
+    
+    loadFramebuffer();
+}
+
+void Skybox::resize(int width, int height){
+    m_width = width;
+    m_height = height;
+    
+    loadFramebuffer();
 }
 
 bool Skybox::loadShaders()
 {
     loadSkyboxShader();
+    loadOutputShader();
     loadUniformLocations();
 
     return true;
@@ -160,15 +183,87 @@ bool Skybox::loadSkyboxShader()
     return true;
 }
 
+bool Skybox::loadOutputShader()
+{
+    const auto vertexShaderSource = cgutils::textFromFile("data/sky_triangle/skybox.vert");
+    const auto vertexShaderSource_ptr = vertexShaderSource.c_str();
+    if (vertexShaderSource_ptr)
+        glShaderSource(m_outputVertexShader, 1, &vertexShaderSource_ptr, 0);
+    
+    glCompileShader(m_outputVertexShader);
+    bool success = cgutils::checkForCompilationError(m_outputVertexShader, "data/sky_triangle/skybox.vert");
+    
+    
+    const auto fragmentShaderSource = cgutils::textFromFile("data/sky_triangle/skyboxTex.frag");
+    const auto fragmentShaderSource_ptr = fragmentShaderSource.c_str();
+    if (fragmentShaderSource_ptr)
+        glShaderSource(m_outputFragmentShader, 1, &fragmentShaderSource_ptr, 0);
+    
+    glCompileShader(m_outputFragmentShader);
+    success &= cgutils::checkForCompilationError(m_outputFragmentShader, "data/sky_triangle/skyboxTex.frag");
+    
+    if (!success)
+        return false;
+    
+    gl::glLinkProgram(m_outputProgram);
+    
+    success &= cgutils::checkForLinkerError(m_outputProgram, "skybox output program");
+    if (!success)
+        return false;
+    return true;
+}
+
+bool Skybox::loadFramebuffer()
+{
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    
+    // The texture we're going to render to
+    
+    glGenTextures(1, &m_outputTexture);
+    
+    // "Bind" the newly created texture : all future texture functions will modify this texture
+    glBindTexture(GL_TEXTURE_2D, m_outputTexture);
+    
+    
+    // Give an empty image to OpenGL ( the last "0" )
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, m_width, m_height, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(GL_CLAMP_TO_BORDER));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(GL_CLAMP_TO_BORDER));
+    
+    // Set "m_renderedTexture" as our colour attachement #1
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_outputTexture, 0);
+    
+    // Set the list of draw buffers.
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers); // "2" is the size of DrawBuffers
+    
+    // check that our framebuffer is complete
+    return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+}
+
 void Skybox::loadUniformLocations()
 {
+    glUseProgram(m_skyboxProgram);
+    
     m_skyboxLocation  = glGetUniformLocation(m_skyboxProgram, "skybox");
     m_transformMatrixLocation = glGetUniformLocation(m_skyboxProgram, "transform");
     m_skyboxProgramEyeLocation = glGetUniformLocation(m_skyboxProgram, "eye");
-
-    glUseProgram(m_skyboxProgram);
+    
     glUniform1i(m_skyboxLocation, 0);
     glUniformMatrix4fv(m_transformMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1)));
+    
+    glUseProgram(m_outputProgram);
+    
+    m_SkyboxLocationTex  = glGetUniformLocation(m_outputProgram, "skybox");
+    m_TransformMatrixLocationTex = glGetUniformLocation(m_outputProgram, "transform");
+    m_SkyboxProgramEyeLocationTex = glGetUniformLocation(m_outputProgram, "eye");
+    
+    glUniform1i(m_SkyboxLocationTex, 0);
+    glUniformMatrix4fv(m_TransformMatrixLocationTex, 1, GL_FALSE, glm::value_ptr(glm::mat4(1)));
 
     glUseProgram(0);
 }
@@ -212,10 +307,8 @@ void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 ey
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture);
 
-
-    //render skybox //////////////////////////////////////////////////////////////////////////////
+    ///////////////// render skybox /////////////////////////////////////////////////////////////
     
-
     glUseProgram(m_skyboxProgram);
 
     glUniformMatrix4fv(m_transformMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
@@ -233,9 +326,42 @@ void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 ey
 
     glDepthFunc(GL_LESS);
     
+    glEnable(GL_DEPTH_TEST);
+    glBindVertexArray(0);
+}
+
+gl::GLuint Skybox::renderToTexture(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 eye)
+{
+    glDisable(GL_CULL_FACE);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture);
+    
+    ///////////////// render skybox /////////////////////////////////////////////////////////////
+    
+    glUseProgram(m_outputProgram);
+    
+    glUniformMatrix4fv(m_TransformMatrixLocationTex, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glUniform3f(m_SkyboxProgramEyeLocationTex, eye.x, eye.y, eye.z);
+    
+    glBindVertexArray(m_skyboxVAO);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    
+    glCullFace(GL_CCW);
+    
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 15);
+    glDepthMask(GL_TRUE);
+    
+    glDepthFunc(GL_LESS);
     
     glEnable(GL_DEPTH_TEST);
     glBindVertexArray(0);
+    
+    return m_outputTexture;
 }
 
 
