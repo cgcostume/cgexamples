@@ -58,6 +58,12 @@ Skybox::~Skybox()
     glDeleteShader(m_skyboxFragmentShader);
     glDeleteVertexArrays(1, &m_skyboxVAO);
     glDeleteTextures(1, &m_skyboxTexture);
+    
+    glDeleteFramebuffers(1, &m_fbo);
+    glDeleteProgram(m_outputProgram);
+    glDeleteShader(m_outputVertexShader);
+    glDeleteShader(m_outputFragmentShader);
+    glDeleteTextures(1, &m_outputTexture);
 }
 
 void Skybox::initialize()
@@ -218,11 +224,10 @@ bool Skybox::loadFramebuffer()
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     
-    // The texture we're going to render to
-    
+    // The texture to to render to
     glGenTextures(1, &m_outputTexture);
     
-    // "Bind" the newly created texture : all future texture functions will modify this texture
+    // Bind the texture : all future texture functions will modify this texture
     glBindTexture(GL_TEXTURE_2D, m_outputTexture);
     
     
@@ -234,12 +239,12 @@ bool Skybox::loadFramebuffer()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(GL_CLAMP_TO_BORDER));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(GL_CLAMP_TO_BORDER));
     
-    // Set "m_renderedTexture" as our colour attachement #1
+    // Set "m_renderedTexture" as our colour attachement #0
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_outputTexture, 0);
     
     // Set the list of draw buffers.
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers); // "2" is the size of DrawBuffers
+    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
     
     // check that our framebuffer is complete
     return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
@@ -306,8 +311,6 @@ void Skybox::render(glm::tmat4x4<float, glm::highp> viewProjection, glm::vec3 ey
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture);
-
-    ///////////////// render skybox /////////////////////////////////////////////////////////////
     
     glUseProgram(m_skyboxProgram);
 
@@ -336,8 +339,6 @@ gl::GLuint Skybox::renderToTexture(glm::tmat4x4<float, glm::highp> viewProjectio
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture);
-    
-    ///////////////// render skybox /////////////////////////////////////////////////////////////
     
     glUseProgram(m_outputProgram);
     

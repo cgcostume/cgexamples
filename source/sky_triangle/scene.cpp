@@ -12,7 +12,8 @@
 using namespace gl;
 
 Scene::Scene()
-: m_showSplitLine(true)
+: m_defaultMedian(4.f)
+, m_median(m_defaultMedian)
 , m_drawMode(0)
 , m_drawModeChanged(true)
 , m_cameraMode(0)
@@ -53,7 +54,6 @@ void Scene::resize(int w, int h)
 {
     m_width = w;
     m_height = h;
-    m_median = m_showSplitLine ? m_width / 1000.f : 0.f;
     
     // Define the area for the rasterizer that is used for the NDC mapping ([-1, 1]^2 x [0, 1])
     gl::glViewport(0, 0, m_width, m_height);
@@ -80,8 +80,7 @@ void Scene::toggleRotation()
 
 void Scene::toggleLine()
 {
-    m_showSplitLine = !m_showSplitLine;
-    m_median = m_showSplitLine ? m_width/1000.f : 0.f;
+    m_median = m_median == 0.f ? m_defaultMedian : 0.f;
 }
 
 void Scene::changeRadiusBy(float value)
@@ -131,8 +130,10 @@ void Scene::render(float speed)
         m_direction = glm::vec3(sin(glm::radians(m_angle)), 0.f, cos(glm::radians(m_angle)));
         break;
     case 1:
-        m_eye = glm::vec3(sin(glm::radians(m_angle + 180.f)) * m_radius, 0.0f, cos(glm::radians(m_angle + 180.f)) * m_radius); //add 180 degress to the angle to look in the same direction as in centered mode
+        //add 180 degress to the angle to look in the same direction as in centered mode
+        m_eye = glm::vec3(sin(glm::radians(m_angle + 180.f)) * m_radius, 0.0f, cos(glm::radians(m_angle + 180.f)) * m_radius);
         m_direction = -m_eye;
+        
         break;
     }
 

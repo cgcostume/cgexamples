@@ -33,8 +33,8 @@ protected:
     
     int m_width;
     int m_height;
+    const float m_defaultMedian;
     float m_median;
-    bool m_showSplitLine;
 
     SkyTriangle example1;
     Skybox example2;
