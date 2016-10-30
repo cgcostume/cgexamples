@@ -14,10 +14,10 @@ void main()
     vec3 stu = normalize(v_ray.xyz - eye);
     
     vec4 skyTriangleColor = texture(cubemap, stu);
-    vec4 diff = skyTriangleColor - texture(cubeExampleTexture, v_uv);
+    vec4 diff = abs(skyTriangleColor - texture(cubeExampleTexture, v_uv));
     
     //out_color = smoothstep(vec4(skyTriangleColor.rgb,1.0), diff, vec4(diff == vec4(0.0)));
     
-    out_color = diff + vec4(skyTriangleColor.rgb, 0.5);
+    out_color = diff + vec4(skyTriangleColor.rgb, 0.3);
 }
 
