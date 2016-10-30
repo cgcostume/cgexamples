@@ -1,7 +1,7 @@
 
-#include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
-
 #include <glm/gtc/type_ptr.hpp>
+
+#include <glbinding/gl32core/gl.h>  // this is a OpenGL feature include; it declares all OpenGL 3.2 Core symbols
 
 
 // For more information on how to write C++ please adhere to: 
@@ -12,7 +12,7 @@ class SkyTriangle
 public:
     SkyTriangle();
     ~SkyTriangle();
-
+    
     void initialize();
     void cleanup();
     bool loadShaders();

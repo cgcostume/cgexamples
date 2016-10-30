@@ -28,7 +28,7 @@ const auto canvasHeight = 900; // in pixel
 
 // "The size callback ... which is called when the window is resized."
 // http://www.glfw.org/docs/latest/group__window.html#gaa40cd24840daa8c62f36cafc847c72b6
-void resizeCallback(GLFWwindow * /*window*/, int width, int height)
+void resizeCallback(GLFWwindow * window, int width, int height)
 {
     example.resize(width, height);
 }
@@ -90,22 +90,29 @@ void keyCallback(GLFWwindow * /*window*/, int key, int /*scancode*/, int action,
     case GLFW_KEY_5:
         example.setProcessing(Particles::ProcessingMode::GPU_ComputeShaders);
         std::cout << "Processing: GPU_ComputeShaders" << std::endl;
+#ifdef __APPLE__
+        std::cout << "not supported by OS X" << std::endl;
+#endif
         break;
-    case GLFW_KEY_7:
+    case GLFW_KEY_6:
         example.setDrawing(Particles::DrawingMode::None);
         std::cout << "Drawing: None" << std::endl;
         break;
-    case GLFW_KEY_8:
+    case GLFW_KEY_7:
         example.setDrawing(Particles::DrawingMode::BuiltInPoints);
         std::cout << "Drawing: Points" << std::endl;
         break;
-    case GLFW_KEY_9:
+    case GLFW_KEY_8:
         example.setDrawing(Particles::DrawingMode::CustomQuads);
         std::cout << "Drawing: Quads" << std::endl;
         break;
-    case GLFW_KEY_0:
+    case GLFW_KEY_9:
         example.setDrawing(Particles::DrawingMode::ShadedQuads);
         std::cout << "Drawing: ShadedQuads" << std::endl;
+        break;    
+    case GLFW_KEY_0:
+        example.setDrawing(Particles::DrawingMode::Fluid);
+        std::cout << "Drawing: Fluid" << std::endl;
         break;
     }
 }
@@ -135,7 +142,7 @@ int main(int /*argc*/, char ** /*argv*/)
     glfwDefaultWindowHints();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -146,7 +153,7 @@ int main(int /*argc*/, char ** /*argv*/)
         return 2;
     }
 
-    glfwSetWindowSizeCallback(window, resizeCallback);
+    glfwSetFramebufferSizeCallback(window, resizeCallback);
     glfwSetKeyCallback(window, keyCallback);
 
     std::cout << "Particles (CPU/GPU)" << std::endl << std::endl;
@@ -162,10 +169,11 @@ int main(int /*argc*/, char ** /*argv*/)
         << "  [4] particle processing: CPU_OMP_AVX2" << std::endl
         << "  [5] particle processing: GPU_ComputeShaders" << std::endl
         << std::endl
-        << "  [7] particle drawing: none/skip" << std::endl
-        << "  [8] particle drawing: built-in points" << std::endl
-        << "  [9] particle drawing: custom quads" << std::endl
-        << "  [0] particle drawing: custom, shaded quads" << std::endl
+        << "  [6] particle drawing: none/skip" << std::endl
+        << "  [7] particle drawing: built-in points" << std::endl
+        << "  [8] particle drawing: custom quads" << std::endl
+        << "  [9] particle drawing: custom, shaded quads" << std::endl
+        << "  [0] particle drawing: fluid" << std::endl
         << std::endl
         << "  [a/d] rotate left/right" << std::endl
         << "  [S/s] increase/decrease particle scale" << std::endl
@@ -175,7 +183,9 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glbinding::Binding::initialize(false);
 
-    example.resize(canvasWidth, canvasHeight);
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    example.resize(width, height);
     example.initialize();
 
     while (!glfwWindowShouldClose(window)) // main loop

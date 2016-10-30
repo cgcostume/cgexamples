@@ -125,7 +125,7 @@ int main(int /*argc*/, char ** /*argv*/)
     
     glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-    glfwSetWindowSizeCallback(window, resizeCallback);
+    glfwSetFramebufferSizeCallback(window, resizeCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -146,6 +146,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glbinding::Binding::initialize(false);
 
+    glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
     scene.initialize();
     scene.resize(frameBufferWidth, frameBufferHeight);
 

@@ -45,8 +45,13 @@ set(sources
     ${data}/particles.vert
     ${data}/particles.geom
     ${data}/particles.frag
+    ${data}/particles-circle.frag
+    ${data}/particles-sphere.frag
     ${data}/particles.comp
-)
+    ${data}/particles-fluid.vert
+    ${data}/particles-fluid.geom
+    ${data}/particles-fluid.frag
+)    
 
 
 # 
@@ -130,6 +135,10 @@ target_compile_options(${target}
     >
     $<$<CXX_COMPILER_ID:MSVC>:
         $<$<BOOL:${OPTION_USE_AVX2}>:/arch:AVX2>
+    >
+    $<$<CXX_COMPILER_ID:AppleClang>:
+    -msse4.1
+    $<$<BOOL:${OPTION_USE_AVX2}>:-mavx2 -mfma>
     >
 )
 
