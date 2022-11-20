@@ -3,7 +3,7 @@
 # External dependencies
 # 
 
-find_package(GLM REQUIRED)
+find_package(glm REQUIRED)
 find_package(glbinding REQUIRED)
 
 
@@ -93,7 +93,6 @@ target_include_directories(${target}
 
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
-    ${GLM_INCLUDE_DIR} 
 
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -111,6 +110,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${DEFAULT_LIBRARIES}
+    glm::glm
     glbinding::glbinding
     INTERFACE
 )
@@ -127,6 +127,7 @@ target_compile_definitions(${target}
     $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:${target_upper}_STATIC_DEFINE>
     ${DEFAULT_COMPILE_DEFINITIONS}
     GLM_FORCE_RADIANS
+    
     INTERFACE
 )
 

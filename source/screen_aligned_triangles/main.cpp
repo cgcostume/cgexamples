@@ -111,7 +111,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glfwMakeContextCurrent(window);
 
-    glbinding::Binding::initialize(false);
+    glbinding::Binding::initialize(glfwGetProcAddress, false);
 
     example.resize(canvasWidth, canvasHeight);
     example.initialize();

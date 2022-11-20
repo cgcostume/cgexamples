@@ -5,7 +5,7 @@ in vec3 a_vertex;
 
 void main()
 {
-	vec2 uv = vec2(0, floor(gl_InstanceID)) * 2.0;
+	vec2 uv = vec2(0, floor(float(gl_InstanceID))) * 2.0;
 
 	vec3 v = a_vertex;
 	v.xz  += uv;

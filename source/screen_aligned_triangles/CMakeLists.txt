@@ -3,8 +3,8 @@
 # External dependencies
 # 
 
-find_package(GLM REQUIRED)
-find_package(GLFW)
+find_package(glm REQUIRED)
+find_package(glfw3)
 find_package(glbinding REQUIRED)
 
 
@@ -22,7 +22,7 @@ if (APPLE)
 endif()
 
 # Exit here if required dependencies are not met
-if (NOT GLFW_FOUND)
+if (NOT glfw3_FOUND)
     message("${target} skipped: GLFW not found")
     return()
 endif()
@@ -81,8 +81,6 @@ target_include_directories(${target}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     ${PROJECT_BINARY_DIR}/source/include
     SYSTEM
-    ${GLFW_INCLUDE_DIR}
-    ${GLM_INCLUDE_DIR} 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
@@ -94,7 +92,7 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     ${DEFAULT_LIBRARIES}
-    ${GLFW_LIBRARIES}
+    glfw
     ${META_PROJECT_NAME}::cgutils
     glbinding::glbinding
 )
