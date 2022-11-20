@@ -181,7 +181,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
     glfwMakeContextCurrent(window);
 
-    glbinding::Binding::initialize(false);
+    glbinding::Binding::initialize(glfwGetProcAddress, false);
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);

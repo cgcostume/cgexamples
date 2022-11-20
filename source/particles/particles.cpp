@@ -17,7 +17,7 @@
 #pragma warning(pop)
 
 #include <glbinding/gl32ext/gl.h>
-#include <glbinding/ContextInfo.h>
+#include <glbinding-aux/ContextInfo.h>
 
 #include <cgutils/common.h>
 
@@ -156,9 +156,9 @@ void Particles::setupBuffer(const bool mapBuffer, const bool bufferStorageAvaila
 void Particles::initialize()
 {
     // can map and unmap buffer api be used
-    //m_bufferStorageAvailable = glbinding::ContextInfo::supported({ GLextension::GL_ARB_buffer_storage });
+    //m_bufferStorageAvailable = glbinding::aux::ContextInfo::supported({ GLextension::GL_ARB_buffer_storage });
     // can compute shader 
-    m_computeShadersAvailable = glbinding::ContextInfo::supported({ GLextension::GL_ARB_compute_shader });
+    m_computeShadersAvailable = glbinding::aux::ContextInfo::supported({ GLextension::GL_ARB_compute_shader });
 
     // setup common state
 
